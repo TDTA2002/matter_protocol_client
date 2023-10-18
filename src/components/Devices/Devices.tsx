@@ -1,32 +1,75 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './devices.scss'
 import { useSelector } from 'react-redux'
 import { StoreType } from '@/store'
-
+import QrCode from './component/QrCode'
+import { message } from 'antd'
+import { log } from 'console'
 export default function Productlist() {
-
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
-    console.log("userStore", userStore);
+    const [QR_Code, setQR_Code] = useState("")
+    const [showModal, setShowModal] = useState(false);
 
     function handleSearchQrCode(node_id: number) {
-        if (userStore.socket) {
-            console.log("userStore.socket", userStore.socket);
-
-            userStore.socket.emit("requireDecoe", {
-                message: 8,
-                node_id: node_id
-            })
+        // Lấy dữ liệu từ localStorage
+        const decodeTemp = localStorage.getItem('decode');
+        if (decodeTemp !== null) {
+            const parts = decodeTemp.split('+');
+            if (parts.length === 2) {
+                const a = parts[0];
+                const timestamp = parseInt(parts[1], 10);
+                if (!isNaN(timestamp)) {
+                    const currentTime = Math.floor(Date.now());
+                    const time = ((currentTime - timestamp) / 1000)
+                    const isWithin10Minutes = time < 600;
+                    // console.log("currentTime", currentTime );
+                    // console.log("timestamp", timestamp);
+                    // console.log("time", time);                    
+                    if (isWithin10Minutes) {
+                        setQR_Code(a)
+                        console.log("vao23232");
+                        
+                        setShowModal(true)
+                        console.log("qr_code", QR_Code);
+                    } else {
+                        if (userStore.socket) {
+                            console.log("userStore.socket", userStore.socket);
+                            userStore.socket.emit("requireDecoe", {
+                                message: 8,
+                                node_id: node_id
+                            })
+                        }
+                    }
+                }
+            }
         }
-
-        // userStore.socket?.emit("requireDecoe", {
-        //     message:8,
-        //     node_id:node_id
-        // })
     }
+    userStore.socket?.on("decode", (decode: string | null) => {
+        console.log("data test", decode);
+        if (decode != null) {
+            localStorage.setItem(`decode`, `${decode}+${Date.now()}`)
+            setQR_Code(decode)
+            setShowModal(true)
+            console.log("qr_code", QR_Code);
+        }
+    })
+    userStore.socket?.on("decodeFailed", (notification: string) => {
+        console.log("notification", notification);
+        if(notification != ""){
+            message.error(notification)
+        }
+    })
+  
+    // useEffect(() => {
+    //     if (QR_Code !== '') {
+    //         <QR_Code />
+    //     }    
+    // }, [QR_Code]);
     return (
         <main>
+            {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
             <div className="head-title">
                 <div className="left">
                     <h1>Products</h1>
@@ -86,8 +129,9 @@ export default function Productlist() {
                                     2023/10/10
                                 </td>
                                 <td>
+                                    
                                     <button className="status completed" onClick={() => {
-                                        handleSearchQrCode(167)
+                                        handleSearchQrCode(188)
                                     }}>Share QR</button>
                                     <button className="status delete">Unpair</button>
                                     <button className="status pending">Detail</button>

@@ -41,8 +41,11 @@ function App() {
         })
         dispatch(userAction.setSocket(socket))
       }
+
+
     }
   }, [userStore.reLoad])
+
   return (
     <>
       <RouteSetup />
