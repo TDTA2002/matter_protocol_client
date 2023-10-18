@@ -1,7 +1,30 @@
+import { useEffect } from 'react'
 import './devices.scss'
+import { useSelector } from 'react-redux'
+import { StoreType } from '@/store'
 
 export default function Productlist() {
 
+    const userStore = useSelector((store: StoreType) => {
+        return store.userStore
+    })
+    console.log("userStore", userStore);
+    
+    function handleSearchQrCode(node_id:number){
+        if(userStore.socket){
+            console.log("userStore.socket", userStore.socket);
+            
+            userStore.socket.emit("requireDecoe", {
+                message:8,
+                node_id:node_id
+            })
+        }
+
+            // userStore.socket?.emit("requireDecoe", {
+            //     message:8,
+            //     node_id:node_id
+            // })
+    }
     return (
         <main>
             <div className="head-title">
@@ -64,13 +87,15 @@ export default function Productlist() {
                                     2023/10/10
                                 </td>
                                 <td>
-                                    <button className="status completed">Share QR</button>
+                                    <button className="status completed" onClick={() => {
+                                        handleSearchQrCode(167)
+                                    }}>Share QR</button>
                                     <button className="status delete">Unpair</button>
                                     <button className="status pending">Detail</button>
 
                                 </td>
                                 <td>
-                                  
+
 
                                 </td>
                             </tr>
