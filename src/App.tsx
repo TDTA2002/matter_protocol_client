@@ -1,32 +1,51 @@
 import './main.scss';
 import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import RouteSetup from './routes/RouteSetup'
-import { Socket, io } from "socket.io-client"
 import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from './store';
-import { userAction } from './store/slices/user.slices';
+import { User, userAction } from './store/slices/user.slices';
+import { Socket, io } from 'socket.io-client';
 
 function App() {
   const dispatch = useDispatch()
-  const [count, setCount] = useState(0)
   const userStore = useSelector((store: StoreType) => {
     return store.userStore
   })
+  console.log("userStore", userStore);
   useEffect(() => {
-    let socket: Socket = io("http://localhost:3001", {
-      query: {
-        testdecoe: String
+    if (!userStore.data) {
+      console.log("vào rồi 21215511");
+      let token = localStorage.getItem("token");
+      if (token) {
+        let socket: Socket = io("http://localhost:3001", {
+          query: {
+            token
+          }
+        })
+        socket.on("connectStatus", (data: { status: boolean, message: string }) => {
+          if (data.status) {
+            console.log(data.message)
+          } else {
+            console.log(data.message)
+          }
+        })
+        socket.on("disconnect", () => {
+          dispatch(userAction.setData(null))
+          console.log("đã out")
+        })
+
+        socket.on("receiveUserData", (user: User) => {
+          dispatch(userAction.setData(user))
+          console.log("user", user);
+
+        })
+        dispatch(userAction.setSocket(socket))
       }
-    })
-    dispatch(userAction.setSocket(socket))
-    // console.log("socket", socket);
 
 
+    }
+  }, [userStore.reLoad])
 
-
-  }, [userStore.reload])
   return (
     <>
       <RouteSetup />

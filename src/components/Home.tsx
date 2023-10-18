@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./home.scss";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import logo from '@/assets/z4787944792026_b3b2b8ef0f17a15a59306b4383b0ac2c_transparent.png'
+import { useDispatch, useSelector } from "react-redux";
+import { StoreType } from "@/store";
+import { Dropdown, MenuProps, Modal } from "antd";
+import { userAction } from "@/store/slices/user.slices";
 
 const Sidebar = () => {
-  const navigate = useNavigate();
   const [isSidebarExpanded, setSidebarExpanded] = useState(false);
 
   const [activeMenuItem, setActiveMenuItem] = useState<number | null>(0);
@@ -31,6 +34,55 @@ const Sidebar = () => {
     setDarkMode(!darkMode);
     document.body.classList.toggle('dark');
   };
+
+
+  const [isAdmin, setIsAdmin] = useState(false);
+  const userStore = useSelector((store: StoreType) => store.userStore);
+
+  const checkAdmin = () => {
+    if (userStore.data?.role == "ADMIN") {
+      setIsAdmin(!isAdmin)
+    }
+  }
+
+  useEffect(() => {
+    checkAdmin()
+  }, [userStore])
+  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    Modal.confirm({
+      content: ("confirmLogout"),
+      onOk: () => {
+        localStorage.removeItem("token");
+        userStore.socket?.disconnect();
+        dispatch(userAction.setData(null))
+        dispatch(userAction.setSocket(null))
+      },
+    });
+  };
+
+  const items: MenuProps['items'] = [
+    {
+      key: '1',
+      label: (
+        <a target="_blank" rel="noopener noreferrer" onClick={() => navigate("/profile")}>
+          Profile
+        </a>
+      ),
+    },
+    {
+      key: '2',
+      label: (
+        <a target="_blank" rel="noopener noreferrer" onClick={() => handleLogout()}>
+          Log out
+        </a>
+      ),
+    },
+  ];
+
+
+
 
   return (
     <>
@@ -92,6 +144,26 @@ const Sidebar = () => {
 
             </div>
           </form>
+          <>
+            {userStore?.data?.userName ? (
+
+              <Dropdown menu={{ items }} placement="bottom" arrow>
+                <span className="feature_item"  >{userStore.data.userName} </span>
+              </Dropdown>
+
+            ) : (
+              <>
+                <span onClick={() => navigate("/login")} className="feature_item">
+                  Login
+                </span>
+                <span onClick={() => navigate("/register")} className="feature_item">
+                  Register
+                </span>
+              </>
+
+
+            )}
+          </>
           <input type="checkbox" id="switch-mode" onChange={handleDarkModeChange} checked={darkMode} hidden />
           <label htmlFor="switch-mode" className="switch-mode" />
 

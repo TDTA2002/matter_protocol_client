@@ -104,7 +104,6 @@ export default function Productlist() {
                     </div>
                     <table>
                         <thead>
-
                             <tr>
                                 <th>Default</th>
                                 <th>Id</th>
@@ -139,8 +138,6 @@ export default function Productlist() {
 
                                 </td>
                                 <td>
-
-
                                 </td>
                             </tr>
                             <tr>
