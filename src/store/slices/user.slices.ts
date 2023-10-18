@@ -1,6 +1,11 @@
-import { Socket } from "socket.io-client";
 import { createSlice } from "@reduxjs/toolkit";
+import { Socket } from "socket.io-client";
 
+enum UserRole {
+    OWNER = "OWNER",
+    ADMIN = "ADMIN",
+    MEMBER = "MEMBER",
+}
 
 export interface User {
     id: number;
@@ -8,39 +13,51 @@ export interface User {
     emailAuthentication: boolean;
     userName: string;
     password: string;
-    role: number;
+    role: UserRole;
     status: boolean;
     createAt: String;
     updateAt: String;
 }
 
-interface UserState {
+export interface UserState {
     data: User | null;
-    reload: boolean;
+    reLoad: boolean;
     socket: null | Socket;
     // : null | string;
 }
 
-const initialState: UserState = {
+export const initialState: UserState = {
     data: null,
-    reload: false,
+    reLoad: false,
     socket: null,
 };
 const userSlice = createSlice({
-    name:"user",
+    name: "user",
     initialState,
     reducers: {
-        setSocket: function (state, action){
+        setData: function (state, action) {
             return {
                 ...state,
-                socket: action.payload,
-            };
+                data: action.payload
+            }
+        },
+        setSocket: function (state, action) {
+            return {
+                ...state,
+                socket: action.payload
+            }
+        },
+        reload: function (state) {
+            return {
+                ...state,
+                reLoad: !state.reLoad
+            }
         }
     }
 })
 
 export const userAction = {
-    ...userSlice.actions,
-};
+    ...userSlice.actions
+}
 
-export const userReducer = userSlice.reducer;
+export const userReducer = userSlice.reducer

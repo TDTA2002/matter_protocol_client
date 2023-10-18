@@ -13,6 +13,7 @@ export default function RouteSetup() {
         </Route>
 
 
+        <Route path="/login" element={Lazy(() => import("@components/Users/Formuser"))()}></Route>
 
       </Routes>
     </BrowserRouter>

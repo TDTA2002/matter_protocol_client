@@ -9,21 +9,21 @@ export default function Productlist() {
         return store.userStore
     })
     console.log("userStore", userStore);
-    
-    function handleSearchQrCode(node_id:number){
-        if(userStore.socket){
+
+    function handleSearchQrCode(node_id: number) {
+        if (userStore.socket) {
             console.log("userStore.socket", userStore.socket);
-            
+
             userStore.socket.emit("requireDecoe", {
-                message:8,
-                node_id:node_id
+                message: 8,
+                node_id: node_id
             })
         }
 
-            // userStore.socket?.emit("requireDecoe", {
-            //     message:8,
-            //     node_id:node_id
-            // })
+        // userStore.socket?.emit("requireDecoe", {
+        //     message:8,
+        //     node_id:node_id
+        // })
     }
     return (
         <main>
@@ -61,7 +61,6 @@ export default function Productlist() {
                     </div>
                     <table>
                         <thead>
-
                             <tr>
                                 <th>Default</th>
                                 <th>Id</th>
@@ -95,8 +94,6 @@ export default function Productlist() {
 
                                 </td>
                                 <td>
-
-
                                 </td>
                             </tr>
                             <tr>
