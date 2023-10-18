@@ -1,12 +1,16 @@
-import { combineReducers, configureStore } from "@reduxjs/toolkit";
-import { userReducer } from "./slices/user.slices";
+import { combineReducers, configureStore } from '@reduxjs/toolkit';
+import { userReducer } from './slices/user.slices';
 
-const RootReducer = combineReducers({
-     userStore: userReducer,
+// Kết hợp reducer
+const rootReducer = combineReducers({
+    userStore: userReducer,
+});
+
+// Xuất ra store type
+export type StoreType = ReturnType<typeof rootReducer>;
+
+const store = configureStore({
+    reducer: rootReducer
 })
 
-export type StoreType = ReturnType<typeof RootReducer>;
-
-export const store = configureStore({
-    reducer: RootReducer
-})
+export default store
