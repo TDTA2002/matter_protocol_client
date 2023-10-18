@@ -24,15 +24,8 @@ function App() {
     // console.log("socket", socket);
 
 
-    // socket.on("decode", () => {
-    //   console.log(123);
 
-    // })
 
-    // socket.emit("requireDecoe", {
-    //   message: 8,
-    //   node_id: 156,
-    // });
   }, [userStore.reload])
   return (
     <>

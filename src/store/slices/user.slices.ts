@@ -35,7 +35,8 @@ const userSlice = createSlice({
                 ...state,
                 socket: action.payload,
             };
-        }
+        },
+        
     }
 })
 
