@@ -52,7 +52,13 @@ const userSlice = createSlice({
                 ...state,
                 reLoad: !state.reLoad
             }
-        }
+        },
+        setCart: function (state, action) {
+            return {
+                ...state,
+                cart: action.payload,
+            };
+        },
     }
 })
 
