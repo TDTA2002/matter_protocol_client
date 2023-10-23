@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import RouteSetup from './routes/RouteSetup'
 import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from './store';
-import { User, userAction } from './store/slices/user.slices';
+import {Device, User, userAction } from './store/slices/user.slices';
 import { Socket, io } from 'socket.io-client';
 
 function App() {
@@ -36,6 +36,10 @@ function App() {
           dispatch(userAction.setData(user))
           console.log("user", user);
 
+        })
+        socket.on("receiveUserDevice", (device: Device) => {
+            dispatch(userAction.setDevice(device))
+            console.log("device",device);
         })
         dispatch(userAction.setSocket(socket))
       }
