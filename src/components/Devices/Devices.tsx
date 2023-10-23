@@ -11,7 +11,7 @@ export default function Productlist() {
     const [QR_Code, setQR_Code] = useState("")
     const [showModal, setShowModal] = useState(false);
     const [tempId, setTempId] = useState("")
-    const [search, setSearch] = useState(true);
+    const [unpairId, setUnpairId] = useState("");
     const [loading, setLoading] = useState(false);
 
     function handleSearchQrCode(node_id: number, idDevice: string) {
@@ -22,7 +22,6 @@ export default function Productlist() {
             const decodeData = JSON.parse(decodeTemp);
             for (let i in decodeData) {
                 if (decodeData[i].id == idDevice) {
-                    setSearch(false);
                     const parts = decodeData[i].decode.split('+')
                     if (parts.length === 2) {
                         const a = parts[0];
@@ -116,6 +115,7 @@ export default function Productlist() {
     function handleUnpair(id: string, node_id: number) {
         console.log("id", id);
         console.log("node_id", node_id);
+        setUnpairId(id)
         if (userStore.socket) {
             userStore.socket.emit("unpairDevice", {
                 message: 7,
@@ -124,11 +124,44 @@ export default function Productlist() {
             })
         }
     }
-    userStore.socket?.on('unpairSucces', (message) => {
-        if (message != "") {
-            message.success(message)
-        }
-    })
+    useEffect(() => {
+        userStore.socket?.on('unpairScuces', (message2) => {
+            console.log("message", message2);
+
+            if (message2 != "") {
+               
+                const localStorageData = localStorage.getItem('decodeData');
+                if (localStorageData != undefined) {
+                    const dataArray = JSON.parse(localStorageData);
+                    console.log(dataArray);
+                    
+                    for (let i in dataArray) {
+                        const parts = dataArray[i].id 
+                        console.log("parts", parts);
+                                            
+                        if (parts != "") {
+                            const tempId = parts
+                            console.log("tempId", tempId);
+                            console.log("unpairId", unpairId);
+                            
+                            if (tempId == unpairId) {
+                                message.success(message2)
+                                console.log("bắt đầu xóa");
+                                dataArray.splice(dataArray[i], 1);
+                                setUnpairId("")
+                                console.log("đã xóa thành công ");
+                            }
+                        }
+                    }
+                     localStorage.setItem('decodeData', JSON.stringify(dataArray));
+                } else {
+                    console.log("khong ton tai du lieu");
+
+                }
+            }
+        })
+    }, [unpairId])
+
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -193,11 +226,11 @@ export default function Productlist() {
                                 <td>
 
                                     <button className="status completed" onClick={() => {
-                                        handleSearchQrCode(230, "011010103c2d1cd")
+                                        handleSearchQrCode(426, "daff6703-7176-11ee-a726-6ae029284e11")
                                     }}>{loading ? <span className='loading-spinner'></span> : "Share Connect"}</button>
                                     <button className="status delete"
                                         onClick={() => {
-                                            handleUnpair("5641011f-6ff9-11ee-b7f3-4c797d08af55", 230)
+                                            handleUnpair("daff6703-7176-11ee-a726-6ae029284e11", 426)
                                         }}
                                     >Unpair</button>
                                     <button className="status pending">Detail</button>
