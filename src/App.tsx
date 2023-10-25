@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 import RouteSetup from './routes/RouteSetup'
 import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from './store';
-import {Device, User, userAction } from './store/slices/user.slices';
+import { Device, User, userAction, ListBinding } from './store/slices/user.slices';
 import { Socket, io } from 'socket.io-client';
 
 function App() {
@@ -31,24 +31,25 @@ function App() {
           dispatch(userAction.setData(null))
           console.log("đã out")
         })
-
         socket.on("receiveUserData", (user: User) => {
           dispatch(userAction.setData(user))
         })
-        socket.on("receiveUserDevice", (device: Device) => {
-            dispatch(userAction.setDevice(device))
-            console.log("device",device);
+        socket.on("receiveDevice", (device: Device[]) => {
+          dispatch(userAction.setDevice(device))
+          console.log("device", device);
+        })
+        socket.on("receiveBinding", (ListBinding: ListBinding[]) => {
+          dispatch(userAction.setListBinding(ListBinding))
+          console.log("ListBinding", ListBinding);
         })
         dispatch(userAction.setSocket(socket))
       }
-
-
     }
   }, [userStore.reLoad])
   useEffect(() => {
     const interval = 1 * 60 * 1000; // 3 phút
     const checkLocalStorageData = () => {
-      const localStorageData = localStorage.getItem('decodeData');        
+      const localStorageData = localStorage.getItem('decodeData');
       if (localStorageData != undefined) {
         const dataArray = JSON.parse(localStorageData);
         for (let i in dataArray) {
@@ -58,7 +59,7 @@ function App() {
             if (!isNaN(timestamp)) {
               const currentTime = Math.floor(Date.now());
               const time = ((currentTime - timestamp) / 1000);
-              const isWithin10Minutes = time > 270;    
+              const isWithin10Minutes = time > 270;
               if (isWithin10Minutes) {
                 dataArray.splice(dataArray[i], 1);
               }
@@ -66,8 +67,8 @@ function App() {
           }
         }
         localStorage.setItem('decodeData', JSON.stringify(dataArray));
-      }else{
-        console.log("1243");     
+      } else {
+        console.log("1243");
         clearTimeout(interval)
       }
     };

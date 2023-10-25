@@ -26,19 +26,40 @@ export interface Device{
    node_id: number; 
    status: boolean;
    power: number;
+    groupName:string;
+    groupId:string;
 }
-
+export interface BindingDevice{
+   id: string;
+   name: string;
+   user_device_id: string;
+   node_id: number; 
+   status: boolean;
+   power: number;
+}
+export interface Binding{
+   id: string;
+   name: string;
+   deviceId: string;
+}
+export interface ListBinding{
+    binding:Binding;
+    bindingDevice:BindingDevice;
+}
 export interface UserState {
     data: User | null;
     reLoad: boolean;
     socket: null | Socket;
-    // : null | string;
+    Device: null | Device[];
+    ListBinding:null | ListBinding[]
 }
 
 export const initialState: UserState = {
     data: null,
     reLoad: false,
     socket: null,
+    Device: null,
+    ListBinding:null,
 };
 
 const userSlice = createSlice({
@@ -67,6 +88,12 @@ const userSlice = createSlice({
             return {
                 ...state,
                 Device: action.payload,
+            };
+        },
+        setListBinding: function (state, action) {
+            return {
+                ...state,
+                ListBinding: action.payload,
             };
         },
     }

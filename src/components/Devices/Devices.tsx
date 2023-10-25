@@ -118,8 +118,6 @@ export default function Productlist() {
     }, [])
 
     function handleUnpair(id: string, node_id: number) {
-        console.log("id", id);
-        console.log("node_id", node_id);
         setUnpairId(id)
         if (userStore.socket) {
             userStore.socket.emit("unpairDevice", {
@@ -131,10 +129,7 @@ export default function Productlist() {
     }
     useEffect(() => {
         userStore.socket?.on('unpairScuces', (message2) => {
-            console.log("message", message2);
-
-            if (message2 != "") {
-               
+            if (message2 != "") {  
                 const localStorageData = localStorage.getItem('decodeData');
                 if (localStorageData != undefined) {
                     const dataArray = JSON.parse(localStorageData);
@@ -142,26 +137,19 @@ export default function Productlist() {
                     
                     for (let i in dataArray) {
                         const parts = dataArray[i].id 
-                        console.log("parts", parts);
-                                            
                         if (parts != "") {
                             const tempId = parts
-                            console.log("tempId", tempId);
-                            console.log("unpairId", unpairId);
-                            
                             if (tempId == unpairId) {
+                                console.log("message", message2);
                                 message.success(message2)
-                                console.log("bắt đầu xóa");
                                 dataArray.splice(dataArray[i], 1);
                                 setUnpairId("")
-                                console.log("đã xóa thành công ");
                             }
                         }
                     }
                      localStorage.setItem('decodeData', JSON.stringify(dataArray));
                 } else {
                     console.log("khong ton tai du lieu");
-
                 }
             }
         })
