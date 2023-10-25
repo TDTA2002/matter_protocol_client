@@ -3,6 +3,7 @@ import "./binding.scss";
 import { StoreType } from "@/store";
 import { useEffect, useState } from "react";
 import { ListBinding } from "@/store/slices/user.slices";
+import AddBinding from "../AddBinding/AddBinding";
 // import { Device } from "@/store/slices/user.slices"
 
 interface Device {
@@ -33,6 +34,7 @@ export default function Binding() {
             setShouldUpdateListDevice(true);
         }
     }, [userStore.Device, userStore.ListBinding]);
+
     useEffect(() => {
         if (shouldUpdateListDevice) {
             if (listDevice && listBinding) {
@@ -116,12 +118,11 @@ export default function Binding() {
                                         </p>
                                     </td>
                                     <td>
-                                        <p>{item.power}</p>
+                                        <p>{item.power}W/h</p>
                                     </td>
                                     <td>2023/10/10</td>
                                     <td>
                                         {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
-
                                     </td>
                                     <td>
                                         <span> {item.status}</span>
@@ -129,6 +130,7 @@ export default function Binding() {
                                 </tr>
                             ))}
                         </tbody>
+                        <AddBinding/>
                     </table>
                 </div>
             </div>

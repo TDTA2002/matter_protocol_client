@@ -1,15 +1,14 @@
-import React, { FormEvent, useRef } from 'react';
+import { FormEvent, useRef } from 'react';
 import Input from 'antd/es/input/Input';
 import { useSelector } from 'react-redux';
 import { StoreType } from '@/store';
-import { io, Socket } from 'socket.io-client';
+
 
 type InputRef = {
     input: HTMLInputElement;
 };
 
-
-export default function AddDevice() {
+export default function AddBinding() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
@@ -31,7 +30,6 @@ export default function AddDevice() {
             console.log("formData", formData);
 
             if (formData) {
-                // const socket = io('http://localhost:3001');
                 if (userStore.socket) {
                     userStore.socket.emit('addDevices', formData);
                 }

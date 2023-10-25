@@ -4,11 +4,23 @@ import { useSelector, useStore } from 'react-redux'
 import { StoreType } from '@/store'
 import QrCode from './component/QrCode'
 import { message } from 'antd'
-import { log } from 'console'
 import AddDevice from '../AddDevice/AddDevice'
-import socketIOClient from 'socket.io-client';
+import { ListBinding } from '@/store/slices/user.slices'
 
+interface Device {
+    id: string;
+    name: string;
+    user_device_id: string;
+    node_id: number;
+    status: boolean;
+    power: number;
+    groupName: string;
+    groupId: string;
+}
 export default function Productlist() {
+    const [listDevice, setListDevice] = useState<Device[]>([]);
+    const [listBinding, setListBinding] = useState<ListBinding[]>([]);
+    const [shouldUpdateListDevice, setShouldUpdateListDevice] = useState(false);
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
@@ -17,7 +29,32 @@ export default function Productlist() {
     const [tempId, setTempId] = useState("")
     const [unpairId, setUnpairId] = useState("");
     const [loading, setLoading] = useState(false);
-
+    useEffect(() => {
+        if (userStore.Device && userStore.Device.length > 0) {
+            setListDevice(userStore.Device);
+            setShouldUpdateListDevice(true);
+        }
+        if (userStore.ListBinding && userStore.ListBinding.length > 0) {
+            setListBinding(userStore.ListBinding);
+            setShouldUpdateListDevice(true);
+        }
+    }, [userStore.Device, userStore.ListBinding]);
+    useEffect(() => {
+        if (shouldUpdateListDevice) {
+            if (listDevice && listBinding) {
+                const updatedListDevice = listDevice.map((device) => {
+                    const matchingBinding = listBinding.find((binding) => binding.bindingDevice.id === device.id);
+                    if (matchingBinding) {
+                        return { ...device, groupName: matchingBinding.binding.name, groupId: matchingBinding.binding.id };
+                    }
+                    return device;
+                });
+                setListDevice(updatedListDevice);
+                setShouldUpdateListDevice(false);
+            }
+        }
+    }, [shouldUpdateListDevice, listDevice, listBinding]);
+    console.log("listDevice", listDevice);
     function handleSearchQrCode(node_id: number, idDevice: string) {
         // Lấy dữ liệu từ localStorage
 
@@ -129,14 +166,14 @@ export default function Productlist() {
     }
     useEffect(() => {
         userStore.socket?.on('unpairScuces', (message2) => {
-            if (message2 != "") {  
+            if (message2 != "") {
                 const localStorageData = localStorage.getItem('decodeData');
                 if (localStorageData != undefined) {
                     const dataArray = JSON.parse(localStorageData);
                     console.log(dataArray);
-                    
+
                     for (let i in dataArray) {
-                        const parts = dataArray[i].id 
+                        const parts = dataArray[i].id
                         if (parts != "") {
                             const tempId = parts
                             if (tempId == unpairId) {
@@ -147,7 +184,7 @@ export default function Productlist() {
                             }
                         }
                     }
-                     localStorage.setItem('decodeData', JSON.stringify(dataArray));
+                    localStorage.setItem('decodeData', JSON.stringify(dataArray));
                 } else {
                     console.log("khong ton tai du lieu");
                 }
@@ -194,46 +231,47 @@ export default function Productlist() {
                     <table>
                         <thead>
                             <tr>
-                                <th>Default</th>
-                                <th>Id</th>
+                                <th>STT</th>
+
                                 <th>Name</th>
-                                <th>Create Time</th>
+                                <th>Power</th>
+                                <th>Group name</th>
                                 <th>Action</th>
                                 <th>Status</th>
 
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <input type="checkbox" />
-                                </td>
-                                <td>
-                                    <p>1</p>
-                                </td>
-                                <td>
-                                    <p><input type="text" placeholder='LED' /></p>
-                                </td>
-                                <td>
-                                    2023/10/10
-                                </td>
-                                <td>
+                            {listDevice?.map((item: any, index: number) => (
+                                <tr key={Date.now() * Math.random()}>
+                                    <td>
+                                        <span>{index + 1}</span>
+                                    </td>
+                                    <td>
+                                        <p><input type="text" defaultValue={item.name} /></p>
+                                    </td>
+                                    <td>
+                                        <p>{item.power} W/h</p>
+                                    </td>
+                                    <td>
+                                        {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
+                                    </td>
+                                    <td>
 
-                                    <button className="status completed" onClick={() => {
-                                        handleSearchQrCode(426, "daff6703-7176-11ee-a726-6ae029284e11")
-                                    }}>{loading ? <span className='loading-spinner'></span> : "Share Connect"}</button>
-                                    <button className="status delete"
-                                        onClick={() => {
-                                            handleUnpair("daff6703-7176-11ee-a726-6ae029284e11", 426)
-                                        }}
-                                    >Unpair</button>
-                                    <button className="status pending">Detail</button>
-
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-
+                                        <button className="status completed" onClick={() => {
+                                            handleSearchQrCode(item.node_id, item.id)
+                                        }}>{loading ? <span className='loading-spinner'></span> : "Share Connect"}</button>
+                                        <button className="status delete"
+                                            onClick={() => {
+                                                handleUnpair(item.id, item.node_id)
+                                            }}
+                                        >Unpair</button>
+                                        <button className="status pending">Detail</button>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
 
