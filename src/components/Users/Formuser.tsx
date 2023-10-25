@@ -52,7 +52,9 @@ export default function FormUser() {
         apis.userApi.login(user)
             .then(res => {
                 if (res.status == 200) {
-                    message.success("Login thành công");
+                    message.success(res.status);
+                    console.log("Login thành công");
+
                     localStorage.setItem("token", res.data.token);
                     console.log("ressss111", res, userAction);
                     dispatch(userAction.reload());

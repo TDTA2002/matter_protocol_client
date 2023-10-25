@@ -34,8 +34,6 @@ function App() {
 
         socket.on("receiveUserData", (user: User) => {
           dispatch(userAction.setData(user))
-          console.log("user", user);
-
         })
         socket.on("receiveUserDevice", (device: Device) => {
             dispatch(userAction.setDevice(device))

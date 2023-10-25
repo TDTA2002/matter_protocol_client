@@ -4,6 +4,10 @@ import { useSelector, useStore } from 'react-redux'
 import { StoreType } from '@/store'
 import QrCode from './component/QrCode'
 import { message } from 'antd'
+import { log } from 'console'
+import AddDevice from '../AddDevice/AddDevice'
+import socketIOClient from 'socket.io-client';
+
 export default function Productlist() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
@@ -16,6 +20,7 @@ export default function Productlist() {
 
     function handleSearchQrCode(node_id: number, idDevice: string) {
         // Lấy dữ liệu từ localStorage
+
         const decodeTemp = localStorage.getItem('decodeData');
         setLoading(true)
         if (decodeTemp) {
@@ -189,6 +194,7 @@ export default function Productlist() {
                         data-mdb-target="#exampleModal">Add New</span>
                 </a>
             </div>
+            <AddDevice />
 
             <div className="table-data">
                 <div className="order">
