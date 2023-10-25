@@ -105,9 +105,9 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className={activeMenuItem === 2 ? 'active' : ''}>
-            <Link to={"add_category"} onClick={() => handleMenuItemClick(2)}>
+            <Link to={"binding"} onClick={() => handleMenuItemClick(2)}>
               <i className="bx bxs-doughnut-chart" />
-              <Link to={"add_category"} className="text">Category</Link>
+              <Link to={"binding"} className="text">Binding</Link>
             </Link>
           </li>
 

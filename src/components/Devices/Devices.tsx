@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './devices.scss'
-import { useSelector } from 'react-redux'
+import { useSelector, useStore } from 'react-redux'
 import { StoreType } from '@/store'
 import QrCode from './component/QrCode'
 import { message } from 'antd'
@@ -14,83 +14,159 @@ export default function Productlist() {
     })
     const [QR_Code, setQR_Code] = useState("")
     const [showModal, setShowModal] = useState(false);
+    const [tempId, setTempId] = useState("")
+    const [unpairId, setUnpairId] = useState("");
+    const [loading, setLoading] = useState(false);
 
-    function handleSearchQrCode(node_id: number) {
+    function handleSearchQrCode(node_id: number, idDevice: string) {
         // Lấy dữ liệu từ localStorage
-        const decodeTemp = localStorage.getItem('decode');
-        if (decodeTemp !== null) {
-            const parts = decodeTemp.split('+');
-            if (parts.length === 2) {
-                const a = parts[0];
-                const timestamp = parseInt(parts[1], 10);
-                if (!isNaN(timestamp)) {
-                    const currentTime = Math.floor(Date.now());
-                    const time = ((currentTime - timestamp) / 1000)
-                    const isWithin10Minutes = time < 600;
-                    // console.log("currentTime", currentTime );
-                    // console.log("timestamp", timestamp);
-                    // console.log("time", time);                    
-                    if (isWithin10Minutes) {
-                        setQR_Code(a)
-                        console.log("vao23232");
 
-                        setShowModal(true)
-                        console.log("qr_code", QR_Code);
-                    } else {
-                        if (userStore.socket) {
-                            console.log("userStore.socket", userStore.socket);
-                            userStore.socket.emit("requireDecoe", {
-                                message: 8,
-                                node_id: node_id
-                            })
+        const decodeTemp = localStorage.getItem('decodeData');
+        setLoading(true)
+        if (decodeTemp) {
+            const decodeData = JSON.parse(decodeTemp);
+            for (let i in decodeData) {
+                if (decodeData[i].id == idDevice) {
+                    const parts = decodeData[i].decode.split('+')
+                    if (parts.length === 2) {
+                        const a = parts[0];
+                        const timestamp = parseInt(parts[1], 10);
+                        if (!isNaN(timestamp)) {
+                            const currentTime = Math.floor(Date.now());
+                            const time = ((currentTime - timestamp) / 1000)
+                            const isWithin10Minutes = time < 300;
+                            console.log("isWithin10Minutes", isWithin10Minutes);
+                            console.log("time", time);
+                            if (isWithin10Minutes) {
+                                setLoading(false)
+                                // mã QR còn hạn => show mã
+                                setQR_Code(a)
+                                setShowModal(true)
+                                return;
+                            } else {
+                                if (userStore.socket) {
+                                    setLoading(true)
+                                    // mã QR đã hết hạn =>  gọi tạo mới                               
+                                    setTempId(idDevice)
+                                    userStore.socket.emit("requireDecoe", {
+                                        message: 8,
+                                        node_id: node_id
+                                    })
+                                }
+                            }
                         }
                     }
+                    // localStorage.setItem('decodeData', JSON.stringify(decodeData));
                 }
+            }
+            if (userStore.socket) {
+                setLoading(true)
+                // mã QR của ID đó đã hêt hạn =>  gọi tạo mới
+                console.log("da roi vao truong hop khac");
+                setTempId(idDevice)
+                userStore.socket.emit("requireDecoe", {
+                    message: 8,
+                    node_id: node_id
+                })
+            }
+
+        } else {
+            if (userStore.socket) {
+                setLoading(true)
+                // không có mã QR của ID đó trong local => gọi cập nhật cái mới 
+                setTempId(idDevice)
+                userStore.socket.emit("requireDecoe", {
+                    message: 8,
+                    node_id: node_id
+                })
             }
         }
     }
-    userStore.socket?.on("decode", (decode: string | null) => {
-        console.log("data test", decode);
-        if (decode != null) {
-            localStorage.setItem(`decode`, `${decode}+${Date.now()}`)
-            setQR_Code(decode)
-            setShowModal(true)
-            console.log("qr_code", QR_Code);
-        }
-    })
-    userStore.socket?.on("decodeFailed", (notification: string) => {
-        console.log("notification", notification);
-        if (notification != "") {
-            message.error(notification)
-        }
-    })
-
-    // useEffect(() => {
-    //     if (QR_Code !== '') {
-    //         <QR_Code />
-    //     }    
-    // }, [QR_Code]);
-
-
-    const [devices, setDevices] = useState([]);
-    console.log("devices", devices);
+    useEffect(() => {
+        // lắng nghe kêt quả trả về và tạo mới
+        userStore.socket?.on("decode", (decode: string) => {
+            if (decode != null) {
+                if (tempId != "") {
+                    setLoading(false)
+                    const decodeData = [
+                        {
+                            id: tempId,
+                            decode: `${decode}+${Date.now()}`
+                        }
+                    ];
+                    const storeData = localStorage.getItem('decodeData');
+                    if (storeData) {
+                        const storeArray = JSON.parse(storeData);
+                        decodeData.push(...storeArray);
+                    }
+                    localStorage.setItem('decodeData', JSON.stringify(decodeData));
+                    setQR_Code(decode)
+                    setShowModal(true)
+                }
+            }
+        })
+    }, [tempId])
 
     useEffect(() => {
-        // Thay đổi địa chỉ máy chủ và cổng tương ứng
-        const socket = socketIOClient('http://localhost:3005');
+        userStore.socket?.on("decodeFailed", (notification: string) => {
+            setLoading(false)
+            // lắng nghe và thông báo các lỗi 
+            if (notification != "") {
+                message.error(notification)
+            }
+        })
+    }, [])
 
-        socket.on('connect', () => {
-            console.log('Kết nối thành công');
-        });
+    function handleUnpair(id: string, node_id: number) {
+        console.log("id", id);
+        console.log("node_id", node_id);
+        setUnpairId(id)
+        if (userStore.socket) {
+            userStore.socket.emit("unpairDevice", {
+                message: 7,
+                id: id,
+                node_id: node_id
+            })
+        }
+    }
+    useEffect(() => {
+        userStore.socket?.on('unpairScuces', (message2) => {
+            console.log("message", message2);
 
-        socket.on('receiveCart', (devicesList) => {
-            setDevices(devicesList);
-        });
+            if (message2 != "") {
+               
+                const localStorageData = localStorage.getItem('decodeData');
+                if (localStorageData != undefined) {
+                    const dataArray = JSON.parse(localStorageData);
+                    console.log(dataArray);
+                    
+                    for (let i in dataArray) {
+                        const parts = dataArray[i].id 
+                        console.log("parts", parts);
+                                            
+                        if (parts != "") {
+                            const tempId = parts
+                            console.log("tempId", tempId);
+                            console.log("unpairId", unpairId);
+                            
+                            if (tempId == unpairId) {
+                                message.success(message2)
+                                console.log("bắt đầu xóa");
+                                dataArray.splice(dataArray[i], 1);
+                                setUnpairId("")
+                                console.log("đã xóa thành công ");
+                            }
+                        }
+                    }
+                     localStorage.setItem('decodeData', JSON.stringify(dataArray));
+                } else {
+                    console.log("khong ton tai du lieu");
 
-        return () => {
-            socket.disconnect();
-        };
-    }, []);
+                }
+            }
+        })
+    }, [unpairId])
+
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -156,55 +232,20 @@ export default function Productlist() {
                                 <td>
 
                                     <button className="status completed" onClick={() => {
-                                        handleSearchQrCode(188)
-                                    }}>Share QR</button>
-                                    <button className="status delete">Unpair</button>
+                                        handleSearchQrCode(426, "daff6703-7176-11ee-a726-6ae029284e11")
+                                    }}>{loading ? <span className='loading-spinner'></span> : "Share Connect"}</button>
+                                    <button className="status delete"
+                                        onClick={() => {
+                                            handleUnpair("daff6703-7176-11ee-a726-6ae029284e11", 426)
+                                        }}
+                                    >Unpair</button>
                                     <button className="status pending">Detail</button>
 
                                 </td>
                                 <td>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status pending">Pending</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status process">Process</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status pending">Pending</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status completed">Completed</span>
-                                </td>
-                            </tr>
+
                         </tbody>
                     </table>
 

@@ -19,6 +19,15 @@ export interface User {
     updateAt: String;
 }
 
+export interface Device{
+   id: string;
+   name: string;
+   user_device_id: string;
+   node_id: number; 
+   status: boolean;
+   power: number;
+}
+
 export interface UserState {
     data: User | null;
     reLoad: boolean;
@@ -31,6 +40,7 @@ export const initialState: UserState = {
     reLoad: false,
     socket: null,
 };
+
 const userSlice = createSlice({
     name: "user",
     initialState,
@@ -52,7 +62,13 @@ const userSlice = createSlice({
                 ...state,
                 reLoad: !state.reLoad
             }
-        }
+        },
+        setDevice: function (state, action) {
+            return {
+                ...state,
+                Device: action.payload,
+            };
+        },
     }
 })
 
