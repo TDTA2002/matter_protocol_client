@@ -13,8 +13,6 @@ export default function RouteSetup() {
           <Route path="/Chart" element={Lazy(() => import("@components/Chart/Chart"))()}></Route>
           <Route path="/binding" element={Lazy(() => import("@components/Binding/Binding"))()}></Route>
         </Route>
-
-        </Route>
         <Route path="/login" element={Lazy(() => import("@components/Users/Formuser"))()}></Route>
 
       </Routes>
