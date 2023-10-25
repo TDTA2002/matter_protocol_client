@@ -5,6 +5,9 @@ import { StoreType } from '@/store'
 import QrCode from './component/QrCode'
 import { message } from 'antd'
 import { log } from 'console'
+import AddDevice from '../AddDevice/AddDevice'
+import socketIOClient from 'socket.io-client';
+
 export default function Productlist() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
@@ -30,7 +33,7 @@ export default function Productlist() {
                     if (isWithin10Minutes) {
                         setQR_Code(a)
                         console.log("vao23232");
-                        
+
                         setShowModal(true)
                         console.log("qr_code", QR_Code);
                     } else {
@@ -57,16 +60,37 @@ export default function Productlist() {
     })
     userStore.socket?.on("decodeFailed", (notification: string) => {
         console.log("notification", notification);
-        if(notification != ""){
+        if (notification != "") {
             message.error(notification)
         }
     })
-  
+
     // useEffect(() => {
     //     if (QR_Code !== '') {
     //         <QR_Code />
     //     }    
     // }, [QR_Code]);
+
+
+    const [devices, setDevices] = useState([]);
+    console.log("devices", devices);
+
+    useEffect(() => {
+        // Thay đổi địa chỉ máy chủ và cổng tương ứng
+        const socket = socketIOClient('http://localhost:3005');
+
+        socket.on('connect', () => {
+            console.log('Kết nối thành công');
+        });
+
+        socket.on('receiveCart', (devicesList) => {
+            setDevices(devicesList);
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -94,6 +118,7 @@ export default function Productlist() {
                         data-mdb-target="#exampleModal">Add New</span>
                 </a>
             </div>
+            <AddDevice />
 
             <div className="table-data">
                 <div className="order">
@@ -129,7 +154,7 @@ export default function Productlist() {
                                     2023/10/10
                                 </td>
                                 <td>
-                                    
+
                                     <button className="status completed" onClick={() => {
                                         handleSearchQrCode(188)
                                     }}>Share QR</button>

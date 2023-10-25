@@ -10,9 +10,10 @@ export default function RouteSetup() {
         <Route path="/" element={Lazy(() => import("@components/Home"))()}>
           <Route path="/" element={Lazy(() => import("@/components/Dashboard"))()}></Route>
           <Route path="/device" element={Lazy(() => import("@components/Devices/Devices"))()}></Route>
+          <Route path="/Chart" element={Lazy(() => import("@components/Chart/Chart"))()}></Route>
+          {/* <Route path="/addDevice" element={Lazy(() => import("@components/AddDevice/AddDevice"))()}></Route> */}
+
         </Route>
-
-
         <Route path="/login" element={Lazy(() => import("@components/Users/Formuser"))()}></Route>
 
       </Routes>

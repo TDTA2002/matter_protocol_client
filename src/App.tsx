@@ -36,8 +36,6 @@ function App() {
 
         socket.on("receiveUserData", (user: User) => {
           dispatch(userAction.setData(user))
-          console.log("user", user);
-
         })
         dispatch(userAction.setSocket(socket))
       }
