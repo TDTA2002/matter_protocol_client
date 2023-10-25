@@ -1,6 +1,54 @@
-import "./binding.scss"
+import { useSelector } from "react-redux";
+import "./binding.scss";
+import { StoreType } from "@/store";
+import { useEffect, useState } from "react";
+import { ListBinding } from "@/store/slices/user.slices";
+// import { Device } from "@/store/slices/user.slices"
 
+interface Device {
+    id: string;
+    name: string;
+    user_device_id: string;
+    node_id: number;
+    status: boolean;
+    power: number;
+    groupName: string;
+    groupId: string;
+}
 export default function Binding() {
+    const [listDevice, setListDevice] = useState<Device[]>([]);
+    const [listBinding, setListBinding] = useState<ListBinding[]>([]);
+    const [shouldUpdateListDevice, setShouldUpdateListDevice] = useState(false);
+    // const [listDevice, setListDevice] = useState()
+    const userStore = useSelector((store: StoreType) => {
+        return store.userStore;
+    });
+    useEffect(() => {
+        if (userStore.Device && userStore.Device.length > 0) {
+            setListDevice(userStore.Device);
+            setShouldUpdateListDevice(true);
+        }
+        if (userStore.ListBinding && userStore.ListBinding.length > 0) {
+            setListBinding(userStore.ListBinding);
+            setShouldUpdateListDevice(true);
+        }
+    }, [userStore.Device, userStore.ListBinding]);
+    useEffect(() => {
+        if (shouldUpdateListDevice) {
+            if (listDevice && listBinding) {
+                const updatedListDevice = listDevice.map((device) => {
+                    const matchingBinding = listBinding.find((binding) => binding.bindingDevice.id === device.id);
+                    if (matchingBinding) {
+                        return { ...device, groupName: matchingBinding.binding.name, groupId:matchingBinding.binding.id };
+                    }
+                    return device;
+                });
+                setListDevice(updatedListDevice);
+                setShouldUpdateListDevice(false);
+            }
+        }
+    }, [shouldUpdateListDevice, listDevice, listBinding]);
+    console.log("listDevice", listDevice);
     return (
         <main>
             <div className="head-title">
@@ -23,8 +71,13 @@ export default function Binding() {
 
                 <a href="#" className="btn-download">
                     <i className="bx bxs-cloud-download" />
-                    <span className="text" data-mdb-toggle="modal"
-                        data-mdb-target="#exampleModal">Add New</span>
+                    <span
+                        className="text"
+                        data-mdb-toggle="modal"
+                        data-mdb-target="#exampleModal"
+                    >
+                        Add New
+                    </span>
                 </a>
             </div>
 
@@ -39,85 +92,46 @@ export default function Binding() {
                         <thead>
                             <tr>
                                 <th>Default</th>
-                                <th>Id</th>
+                                
                                 <th>Name</th>
+                                <th>Power</th>
                                 <th>Create Time</th>
                                 <th>Group Name</th>
                                 <th>Status</th>
-
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <input type="checkbox" />
-                                </td>
-                                <td>
-                                    <p>1</p>
-                                </td>
-                                <td>
-                                    <p><input type="text" placeholder='LED' /></p>
-                                </td>
-                                <td>
-                                    2023/10/10
-                                </td>
-                                <td>
+                            {listDevice?.map((item: any) => (
+                                <tr key={Date.now() * Math.random()}>
+                                    <td>
+                                        {item.groupName ? <></> : <input type="checkbox" />}
+                                    </td>
 
-                                    <span>Chưa Binding</span>
+                                    <td>
+                                        <p>
+                                            <input
+                                                type="text"
+                                                defaultValue={item.name}
+                                            />
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p>{item.power}</p>
+                                    </td>
+                                    <td>2023/10/10</td>
+                                    <td>
+                                        {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
 
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="checkbox" />
-                                </td>
-                                <td>
-                                    <p>1</p>
-                                </td>
-                                <td>
-                                    <p><input type="text" placeholder='LED' /></p>
-                                </td>
-                                <td>
-                                    2023/10/10
-                                </td>
-                                <td>
-
-                                    <span>Chưa Binding</span>
-
-                                </td>
-                                <td>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <input type="checkbox" />
-                                </td>
-                                <td>
-                                    <p>1</p>
-                                </td>
-                                <td>
-                                    <p><input type="text" placeholder='LED' /></p>
-                                </td>
-                                <td>
-                                    2023/10/10
-                                </td>
-                                <td>
-
-                                    <span>Chưa Binding</span>
-
-                                </td>
-                                <td>
-                                    on
-                                </td>
-                            </tr>
+                                    </td>
+                                    <td>
+                                        <span> {item.status}</span>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
-
                 </div>
-
             </div>
-        </main >
-    )
+        </main>
+    );
 }
