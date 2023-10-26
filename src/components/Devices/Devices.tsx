@@ -6,6 +6,7 @@ import QrCode from './component/QrCode'
 import { message } from 'antd'
 import AddDevice from '../AddDevice/AddDevice'
 import { ListBinding } from '@/store/slices/user.slices'
+import { useNavigate } from 'react-router'
 
 interface Device {
     id: string;
@@ -24,10 +25,12 @@ export default function Productlist() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
+    const navigate = useNavigate()
     const [QR_Code, setQR_Code] = useState("")
     const [showModal, setShowModal] = useState(false);
     const [tempId, setTempId] = useState("")
     const [unpairId, setUnpairId] = useState("");
+    const [Id, setId] = useState("");
     const [loading, setLoading] = useState(false);
     useEffect(() => {
         if (userStore.Device && userStore.Device.length > 0) {
@@ -164,6 +167,14 @@ export default function Productlist() {
             })
         }
     }
+    function handleShowChart(id: string) {
+        setId(id)
+        if (userStore.socket) {
+            userStore.socket.emit("showChart", {
+                id: id,
+            })
+        }
+    }
     useEffect(() => {
         userStore.socket?.on('unpairScuces', (message2) => {
             if (message2 != "") {
@@ -264,9 +275,13 @@ export default function Productlist() {
                                         <button className="status delete"
                                             onClick={() => {
                                                 handleUnpair(item.id, item.node_id)
+
                                             }}
                                         >Unpair</button>
-                                        <button className="status pending">Detail</button>
+                                        <button className="status pending" onClick={() => {
+                                            handleShowChart(item.id)
+                                            navigate("/chart")
+                                        }}>Detail</button>
                                     </td>
                                     <td>
                                     </td>

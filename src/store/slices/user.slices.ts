@@ -19,39 +19,48 @@ export interface User {
     updateAt: String;
 }
 
-export interface Device{
-   id: string;
-   name: string;
-   user_device_id: string;
-   node_id: number; 
-   status: boolean;
-   power: number;
-    groupName:string;
-    groupId:string;
+export interface Device {
+    id: string;
+    name: string;
+    user_device_id: string;
+    node_id: number;
+    status: boolean;
+    power: number;
+    groupName: string;
+    groupId: string;
 }
-export interface BindingDevice{
-   id: string;
-   name: string;
-   user_device_id: string;
-   node_id: number; 
-   status: boolean;
-   power: number;
+export interface BindingDevice {
+    id: string;
+    name: string;
+    user_device_id: string;
+    node_id: number;
+    status: boolean;
+    power: number;
 }
-export interface Binding{
-   id: string;
-   name: string;
-   deviceId: string;
+export interface Binding {
+    id: string;
+    name: string;
+    deviceId: string;
 }
-export interface ListBinding{
-    binding:Binding;
-    bindingDevice:BindingDevice;
+export interface ListBinding {
+    binding: Binding;
+    bindingDevice: BindingDevice;
 }
+export interface ListChart {
+    id: string;
+    Date: string;
+    timestamp: number;
+}
+
 export interface UserState {
+    [x: string]: ListChart;
+    [x: string]: ListChart;
     data: User | null;
     reLoad: boolean;
     socket: null | Socket;
     Device: null | Device[];
-    ListBinding:null | ListBinding[]
+    ListBinding: null | ListBinding[];
+    Chart: null | ListChart[]
 }
 
 export const initialState: UserState = {
@@ -59,7 +68,8 @@ export const initialState: UserState = {
     reLoad: false,
     socket: null,
     Device: null,
-    ListBinding:null,
+    ListBinding: null,
+    Chart: null
 };
 
 const userSlice = createSlice({
@@ -94,6 +104,12 @@ const userSlice = createSlice({
             return {
                 ...state,
                 ListBinding: action.payload,
+            };
+        },
+        setChart: function (state, action) {
+            return {
+                ...state,
+                Chart: action.payload,
             };
         },
     }

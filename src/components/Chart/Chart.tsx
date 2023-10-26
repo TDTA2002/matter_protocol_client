@@ -1,79 +1,148 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Chart from 'chart.js/auto';
-import 'chartjs-adapter-luxon'; // Import adapter thời gian
+import 'chartjs-adapter-luxon';
+import { DateTime } from 'luxon';
+import './chart.scss';
+import { useSelector } from 'react-redux';
+import { StoreType } from '@/store';
+import { useParams } from 'react-router';
+import { ListChart } from '@/store/slices/user.slices';
 
-const MyChart = () => {
-    const chartRef = useRef<HTMLCanvasElement | null>(null);
+const MyChart: React.FC = () => {
+  const userStore = useSelector((store: StoreType) => {
+    return store.userStore;
+  });
 
-    useEffect(() => {
-        if (chartRef.current) {
-            const jsonData = [
-                {
-                    "id": 60,
-                    "Date": "2023-10-21T08:24:59.000Z",
-                    "timestamp": 12,
-                },
-                {
-                    "id": 61,
-                    "Date": "2023-10-22T08:24:59.000Z",
-                    "timestamp": 4,
-                }
-                ,
-                {
-                    "id": 62,
-                    "Date": "2023-10-23T08:24:59.000Z",
-                    "timestamp": 6,
-                }
-            ];
+  const chartRef = useRef<HTMLCanvasElement | null>(null);
+  const [chartType, setChartType] = useState<'day' | 'week' | 'month'>('week');
 
-            jsonData.sort((a, b) => new Date(a.Date).getTime() - new Date(b.Date).getTime());
+  useEffect(() => {
+    // Hủy biểu đồ hiện tại nếu tồn tại
+    if (chartRef.current && "chart" in chartRef.current) {
+      (chartRef.current as any).chart.destroy();
+    }
 
-            const data = {
-                labels: jsonData.map(entry => new Date(entry.Date)),
-                datasets: [
-                    {
-                        label: 'Timestamp',
-                        data: jsonData.map(entry => entry.timestamp),
-                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                        borderColor: 'rgba(75, 192, 192, 1)',
-                        borderWidth: 1,
-                    },
-                ],
-            };
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext('2d');
+      const labels: Date[] = [];
+      const dataValues: any[] = [];
 
-            const ctx = chartRef.current?.getContext('2d');
+      if (userStore.Chart) {
+        userStore.Chart?.forEach((entry) => {
+          labels.push(new Date(entry.Date));
+          dataValues.push(entry.timestamp);
+        });
+      }
 
-            if (ctx) {
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: data,
-                    options: {
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'day',
-                                },
-                                title: {
-                                    display: true,
-                                    text: 'Ngày',
-                                },
-                            },
-                            y: {
-                                beginAtZero: true,
-                            },
-                        },
-                    },
-                });
-            }
+      const uniqueLabels: Date[] = [];
+      const uniqueDataValues: any[] = [];
+      let currentInterval: DateTime | undefined = undefined;
+
+      for (let i = 0; i < labels.length; i++) {
+        const date = DateTime.fromJSDate(labels[i]);
+        let interval: DateTime | undefined;
+
+        if (chartType === 'week') {
+          interval = date.startOf('week');
+        } else if (chartType === 'month') {
+          interval = date.startOf('month');
+        } else if (chartType === 'day') {
+          interval = date.startOf('day');
         }
-    }, []);
 
-    return (
-        <div>
-            <canvas ref={chartRef} width={200} height={100} />
+        if (currentInterval === undefined || (interval && !currentInterval.hasSame(interval, chartType))) {
+          // Bắt đầu một khoảng thời gian mới
+          if (interval) {
+            currentInterval = interval;
+            uniqueLabels.push(interval.toJSDate());
+            uniqueDataValues.push(dataValues[i]);
+          }
+        } else {
+          // Cùng một khoảng thời gian, gộp dữ liệu
+          uniqueDataValues[uniqueDataValues.length - 1] += dataValues[i];
+        }
+      }
+
+      const data = {
+        labels: uniqueLabels,
+        datasets: [
+          {
+            label: 'Timestamp',
+            data: uniqueDataValues,
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1,
+          },
+        ],
+      };
+
+      if (ctx) {
+        (chartRef.current as any).chart = new Chart(ctx, {
+          type: 'bar',
+          data: data,
+          options: {
+            scales: {
+              x: {
+                type: 'time',
+                time: {
+                  unit: chartType,
+                },
+                title: {
+                  display: true,
+                  text: chartType === 'week' ? 'Tuần' : chartType === 'month' ? 'Tháng' : 'Ngày', // Hiển thị 'Ngày' nếu đang chọn theo ngày
+                },
+              },
+              y: {
+                beginAtZero: true,
+              },
+            },
+          },
+        });
+      }
+    }
+  }, [chartType, userStore.Chart]);
+
+  return (
+    <main>
+    <div className="head-title">
+        <div className="left">
+            <h1>Products</h1>
+            <ul className="breadcrumb">
+                <li>
+                    <a href="#">Device</a>
+                </li>
+                <li>
+                    <i className="bx bx-chevron-right" />
+                </li>
+                <li>
+                    <a className="active" href="#">
+                        Chart
+                    </a>
+                </li>
+            </ul>
         </div>
-    );
+    </div>
+
+    <div className="table-data">
+        <div className="order">
+            <div className="head">
+                <h3>Chart</h3>
+             
+            </div>
+            <div>
+                <button onClick={() => setChartType('day')}>Day</button>
+                <button onClick={() => setChartType('week')}>Week</button>
+                <button onClick={() => setChartType('month')}>Month</button>
+            </div>
+            <div>
+                <canvas ref={chartRef} width={200} height={80} />
+            </div>
+
+        </div>
+
+    </div>
+</main >
+  );
 };
 
 export default MyChart;
