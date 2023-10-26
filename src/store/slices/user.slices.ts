@@ -53,8 +53,6 @@ export interface ListChart {
 }
 
 export interface UserState {
-    [x: string]: ListChart;
-    [x: string]: ListChart;
     data: User | null;
     reLoad: boolean;
     socket: null | Socket;
