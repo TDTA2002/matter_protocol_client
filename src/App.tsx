@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { StoreType } from './store';
 import { Device, User, userAction, ListBinding } from './store/slices/user.slices';
 import { Socket, io } from 'socket.io-client';
+import { Chart } from 'chart.js';
 
 function App() {
   const dispatch = useDispatch()
@@ -41,6 +42,10 @@ function App() {
         socket.on("receiveBinding", (ListBinding: ListBinding[]) => {
           dispatch(userAction.setListBinding(ListBinding))
           console.log("ListBinding", ListBinding);
+        })
+        socket.on("showChartList", (chart: Chart[]) => {
+          console.log("showChartList", chart);
+          dispatch(userAction.setChart(chart))
         })
         dispatch(userAction.setSocket(socket))
       }
