@@ -1,37 +1,53 @@
-import { FormEvent, useRef } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
 import Input from 'antd/es/input/Input';
 import { useSelector } from 'react-redux';
 import { StoreType } from '@/store';
-
+import { Device } from '@/store/slices/user.slices';
+import "./addbinding.scss"
 
 type InputRef = {
     input: HTMLInputElement;
 };
+type Props = {
+    selectedDevices: string[];
+    setSelectedDevices: (devices: string[]) => void;
+}
+export default function AddBinding(props: Props) {
 
-export default function AddBinding() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
-
+    console.log("ustore", userStore.Device);
+    const [listDevice, setListDevice] = useState<Device[]>([]);
     const nameRef = useRef<InputRef | null>(null);
-    const powerRef = useRef<InputRef | null>(null);
-    const codeRef = useRef<InputRef | null>(null);
+    useEffect(() => {
+        if (userStore.Device && userStore.Device.length > 0) {
+            setListDevice(userStore.Device);
+        }
+    }, [userStore.Device]);
+    const concatenatedStrings = props.selectedDevices.join('+');
+
+    const selectedDevices = listDevice.filter(device => props.selectedDevices.includes(device.id));
+
+
+
 
     const handleCreate = (e: FormEvent) => {
         e.preventDefault();
 
-        if (nameRef.current && powerRef.current && codeRef.current) {
+        if (nameRef.current) {
             const formData = {
                 name: nameRef.current.input.value,
-                power: powerRef.current.input.value,
-                code: codeRef.current.input.value,
+                data: concatenatedStrings,
             };
 
             console.log("formData", formData);
 
             if (formData) {
                 if (userStore.socket) {
-                    userStore.socket.emit('addDevices', formData);
+                    userStore.socket.emit('addBinding', formData);
+                    nameRef.current.input.value = '';
+                    props.setSelectedDevices([]);
                 }
             }
         }
@@ -56,14 +72,14 @@ export default function AddBinding() {
                                         </div>
                                     </div>
                                     <div>
-                                        <div>
-                                            Power <br />
-                                            <Input name="power" type="text" placeholder='Mô tả' ref={powerRef} />
-                                        </div>
-                                        <div>
-                                            Code <br />
-                                            <Input name="code" type="text" placeholder='Giá' ref={codeRef} />
-                                        </div>
+                                        <span>Danh sách thiết bị.</span>
+                                        {selectedDevices.map((item, index) => (
+                                            <div className='itemBinding' key={Date.now() * Math.random()}>
+                                                <span>{index + 1} :</span>
+                                                <span>{item.name}</span>
+                                            </div>
+                                        ))}
+
                                     </div>
                                 </div>
                             </div>
