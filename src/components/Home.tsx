@@ -110,7 +110,6 @@ const Sidebar = () => {
               <Link to={"binding"} className="text">Binding</Link>
             </Link>
           </li>
-
           <li className={activeMenuItem === 3 ? 'active' : ''}>
             <Link to={"list_user"} onClick={() => handleMenuItemClick(3)}>
               <i className="bx bxs-group" />
@@ -133,24 +132,19 @@ const Sidebar = () => {
           </li>
         </ul>
       </section>
-
       <section id="content">
         {/* NAVBAR */}
         <nav>
           <i className="bx bx-menu" onClick={toggleSidebar} />
-
           <form action="#">
             <div className={`form-input${searchFormVisible ? ' show' : ''}`}>
-
             </div>
           </form>
           <>
             {userStore?.data?.userName ? (
-
               <Dropdown menu={{ items }} placement="bottom" arrow>
                 <span className="feature_item"  >{userStore.data.userName} </span>
               </Dropdown>
-
             ) : (
               <>
                 <span onClick={() => navigate("/login")} className="feature_item">
@@ -160,13 +154,10 @@ const Sidebar = () => {
                   Register
                 </span>
               </>
-
-
             )}
           </>
           <input type="checkbox" id="switch-mode" onChange={handleDarkModeChange} checked={darkMode} hidden />
           <label htmlFor="switch-mode" className="switch-mode" />
-
         </nav>
         {/* NAVBAR */}
         {/* MAIN */}

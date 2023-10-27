@@ -3,7 +3,7 @@ import Input from 'antd/es/input/Input';
 import { useSelector } from 'react-redux';
 import { StoreType } from '@/store';
 import { io, Socket } from 'socket.io-client';
-
+import api from '@services/apis'
 type InputRef = {
     input: HTMLInputElement;
 };
@@ -18,16 +18,51 @@ export default function AddDevice() {
     const powerRef = useRef<InputRef | null>(null);
     const codeRef = useRef<InputRef | null>(null);
 
+    // function handleAddDevice() {
+
+    //     console.log('vao rdddddddd');
+
+    //     setLoading(true)
+    //     let data1 = {
+    //         name: name,
+    //         user_device_id: "3481627781236668",
+    //         status: false,
+    //         power: power,
+    //         pair: true
+    //     }
+    //     let idDevices = idDevice
+    //     console.log('vao r da ta la:', data1);
+    //     console.log('idDevce', idDevices);
+    //     api.deviceApi.create(data1, idDevices).then((res) => {
+    //         console.log('res', res.data);
+    //         setAdd(!add)
+    //         setCount(count + 1)
+    //         setLoading(false)
+    //         if (res.data.data) {
+    //             message.success(res.data.message)
+    //         } else {
+    //             message.error(res.data.message)
+    //         }
+    //     }).catch((err) => {
+    //         message.warning("err device")
+    //         console.log('err', err);
+    //         setLoading(false)
+    //     })
+    // }
+
     const handleCreate = (e: FormEvent) => {
         e.preventDefault();
+        console.log('vao r');
 
         if (nameRef.current && powerRef.current && codeRef.current) {
             const formData = {
                 name: nameRef.current.input.value,
                 power: powerRef.current.input.value,
-                code: codeRef.current.input.value,
+                user_device_id: "3481627781236668",
+                status: false,
+                active: true
             };
-
+            let id = codeRef.current.input.value
             console.log("formData", formData);
 
             if (formData) {
@@ -36,6 +71,14 @@ export default function AddDevice() {
                     userStore.socket.emit('addDevices', formData);
                 }
             }
+            api.deviceApi.create(formData, id).then(res => {
+                console.log('res.data', res.data);
+            }).catch(err=>{
+                console.log('errrrr',err);
+            })
+                
+
+            
         }
     }
 
@@ -46,14 +89,14 @@ export default function AddDevice() {
                     <form onSubmit={(e: FormEvent) => handleCreate(e)}>
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h1>Thêm Sản Phẩm</h1>
+                                <h1>Add device</h1>
                                 <button type="button" className="btn-close" data-mdb-dismiss="modal" aria-label="Close" />
                             </div>
                             <div className="modal-body">
                                 <div className='detailproduct'>
                                     <div>
                                         <div>
-                                            Tên <br />
+                                            Name <br />
                                             <Input name="name" type="text" placeholder='Tên' ref={nameRef} />
                                         </div>
                                     </div>
@@ -70,8 +113,8 @@ export default function AddDevice() {
                                 </div>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" data-mdb-dismiss="modal">Đóng</button>
-                                <button type='submit' className="btn btn-primary" data-mdb-dismiss="modal">Lưu</button>
+                                <button type="button" className="btn btn-secondary" data-mdb-dismiss="modal">Close</button>
+                                <button type='submit' className="btn btn-primary" data-mdb-dismiss="modal">Save</button>
                             </div>
                         </div>
                     </form>
