@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ListBinding } from "@/store/slices/user.slices";
 import AddBinding from "../AddBinding/AddBinding";
 // import { Device } from "@/store/slices/user.slices"
-
+import { message } from "antd";
 interface Device {
     id: string;
     name: string;
@@ -20,6 +20,8 @@ export default function Binding() {
     const [listDevice, setListDevice] = useState<Device[]>([]);
     const [listBinding, setListBinding] = useState<ListBinding[]>([]);
     const [shouldUpdateListDevice, setShouldUpdateListDevice] = useState(false);
+    const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
+    const [showMessage, setShowMessage] = useState(false);
     // const [listDevice, setListDevice] = useState()
     const userStore = useSelector((store: StoreType) => {
         return store.userStore;
@@ -41,7 +43,7 @@ export default function Binding() {
                 const updatedListDevice = listDevice.map((device) => {
                     const matchingBinding = listBinding.find((binding) => binding.bindingDevice.id === device.id);
                     if (matchingBinding) {
-                        return { ...device, groupName: matchingBinding.binding.name, groupId:matchingBinding.binding.id };
+                        return { ...device, groupName: matchingBinding.binding?.name, groupId: matchingBinding.binding?.id };
                     }
                     return device;
                 });
@@ -51,6 +53,15 @@ export default function Binding() {
         }
     }, [shouldUpdateListDevice, listDevice, listBinding]);
     console.log("listDevice", listDevice);
+    console.log("listBinding", listBinding);
+
+    const handleDeviceSelection = (deviceId: string) => {
+        if (selectedDevices.includes(deviceId)) {
+            setSelectedDevices(selectedDevices.filter(id => id !== deviceId));
+        } else {
+            setSelectedDevices([...selectedDevices, deviceId]);
+        }
+    };
     return (
         <main>
             <div className="head-title">
@@ -94,7 +105,6 @@ export default function Binding() {
                         <thead>
                             <tr>
                                 <th>Default</th>
-                                
                                 <th>Name</th>
                                 <th>Power</th>
                                 <th>Create Time</th>
@@ -106,9 +116,12 @@ export default function Binding() {
                             {listDevice?.map((item: any) => (
                                 <tr key={Date.now() * Math.random()}>
                                     <td>
-                                        {item.groupName ? <></> : <input type="checkbox" />}
+                                        {item.groupName ? <></> : <input
+                                            type="checkbox"
+                                            onChange={() => handleDeviceSelection(item.id)}
+                                            checked={selectedDevices.includes(item.id)}
+                                        />}
                                     </td>
-
                                     <td>
                                         <p>
                                             <input
@@ -125,12 +138,22 @@ export default function Binding() {
                                         {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
                                     </td>
                                     <td>
-                                        <span> {item.status}</span>
+                                        <span> {item.isDeviceOn}</span>
                                     </td>
                                 </tr>
                             ))}
                         </tbody>
-                        <AddBinding/>
+                        {selectedDevices.length >= 2 ? (
+                            <a href="#" className="btn-download add_btn" data-mdb-toggle="modal" data-mdb-target="#exampleModal">
+                                <span className="text">Add Binding</span>
+                            </a>
+                        ) : (
+                            <a href="#" className="btn-download add_btn">
+                                <span className="text" onClick={() => setShowMessage(true)}>Add Binding</span>
+                            </a>
+                        )}
+                        {showMessage && message.warning("Vui lòng chọn ít nhất 2 thiết bị.")}
+                        <AddBinding selectedDevices={selectedDevices} setSelectedDevices={setSelectedDevices} />
                     </table>
                 </div>
             </div>

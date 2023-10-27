@@ -36,10 +36,8 @@
                         }
 
                         div {
-
                             // CSS cho từng phần tử trong modal body
                             &:first-child {
-
                                 // CSS cho phần chọn Category
                                 select {
                                     width: 400px;
@@ -52,7 +50,6 @@
                             }
 
                             &:nth-child(2) {
-
                                 // CSS cho phần nhập Name
                                 input {
                                     width: 400px;
@@ -65,7 +62,6 @@
                             }
 
                             &:nth-child(3) {
-
                                 // CSS cho phần nhập Des
                                 input {
                                     width: 400px;
@@ -78,7 +74,6 @@
                             }
 
                             &:nth-child(4) {
-
                                 // CSS cho phần nhập Price
                                 input {
                                     width: 400px;
@@ -91,7 +86,6 @@
                             }
 
                             &:nth-child(5) {
-
                                 // CSS cho phần nhập Avatar
                                 input[type="file"] {
                                     width: auto;
@@ -110,7 +104,6 @@
                             }
 
                             &:last-child {
-
                                 // CSS cho phần nhập Pictures
                                 input[type="file"] {
                                     width: auto;
@@ -179,4 +172,10 @@
     border-radius: 50%;
     border-top-color: #ffffff;
     animation: spin 1s infinite linear;
+}
+.add_btn {
+    background-color: #3c91e6;
+    padding: 8px 16px;
+    border-radius: 20px;
+    color: white;
 }
