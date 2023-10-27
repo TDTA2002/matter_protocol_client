@@ -114,7 +114,7 @@ const Sidebar = () => {
           <li className={activeMenuItem === 3 ? 'active' : ''}>
             <Link to={"list_user"} onClick={() => handleMenuItemClick(3)}>
               <i className="bx bxs-group" />
-              <Link to={"Userbill"} className="text">Users</Link>
+              <Link to={"users"} className="text">Users</Link>
             </Link>
           </li>
           <li className={activeMenuItem === 4 ? 'active' : ''}>
