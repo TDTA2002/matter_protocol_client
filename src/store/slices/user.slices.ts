@@ -17,6 +17,13 @@ export interface User {
     status: boolean;
     createAt: String;
     updateAt: String;
+    user_device: UserDevice;
+}
+export interface UserDevice {
+    id: number;
+    email: string;
+    userId: string;
+    role: UserRole;
 }
 
 export interface Device {
@@ -58,6 +65,11 @@ export interface ListUser {
     email: string;
     role: UserRole;
 }
+export interface ListU {
+    id: string;
+    email: string;
+    role: UserRole;
+}
 export interface UserState {
     data: User | null;
     reLoad: boolean;
@@ -66,6 +78,7 @@ export interface UserState {
     ListBinding: null | ListBinding[];
     Chart: null | ListChart[];
     ListUser: null | ListUser[];
+    ListU: null | ListU[]
 }
 
 export const initialState: UserState = {
@@ -75,7 +88,9 @@ export const initialState: UserState = {
     Device: null,
     ListBinding: null,
     Chart: null,
-    ListUser: null
+    ListUser: null,
+    ListU: null
+
 };
 
 const userSlice = createSlice({
@@ -124,6 +139,12 @@ const userSlice = createSlice({
                 ListUser: action.payload,
             };
         },
+        setListU: function (state, action) {
+            return {
+                ...state,
+                ListU: action.payload
+            }
+        }
     }
 })
 

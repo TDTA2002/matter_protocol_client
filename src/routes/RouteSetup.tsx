@@ -4,6 +4,7 @@ import Binding from "@components/Binding/Binding";
 import Home from "@/components/Dashboard";
 import Homemm from "@components/Home";
 import MyChart from "@components/Chart/Chart";
+import User from "@components/UserDevice/UserDevice"
 
 export default function RouteSetup() {
   return (
@@ -16,7 +17,7 @@ export default function RouteSetup() {
           <Route path="/device" element={Lazy(() => import("@components/Devices/Devices"))()}></Route>
           <Route path="/Chart" element={<MyChart />}></Route>
           <Route path="/binding" element={<Binding />}></Route>
-          <Route path="/users" element={Lazy(() => import("@components/UserDevice/UserDevice"))()}></Route>
+          <Route path="/users" element={<User />}></Route>
 
         </Route>
         <Route path="/login" element={Lazy(() => import("@components/Users/Formuser"))()}></Route>

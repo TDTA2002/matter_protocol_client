@@ -2,6 +2,7 @@ import { StoreType } from '@/store';
 import { ListUser } from '@/store/slices/user.slices';
 import React, { FormEvent, useRef } from 'react'
 import { useSelector } from 'react-redux';
+import AddUser from '../AddUser/AddUser';
 
 type InputRef = {
     input: HTMLInputElement;
@@ -12,7 +13,7 @@ export default function UserDevice() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
-    console.log("userStore", userStore.ListUser);
+    console.log("userStore", userStore);
 
     const user = userStore.ListUser
 
@@ -39,6 +40,7 @@ export default function UserDevice() {
             }
         }
     }
+
     return (
         <main>
             <div className="head-title">
@@ -63,8 +65,8 @@ export default function UserDevice() {
                     <span className="text" data-mdb-toggle="modal"
                         data-mdb-target="#exampleModal">Add New</span>
                 </a>
+                <AddUser />
             </div>
-
             <div className="table-data">
                 <div className="order">
                     <div className="head">

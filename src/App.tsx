@@ -33,6 +33,8 @@ function App() {
           console.log("đã out")
         })
         socket.on("receiveUserData", (user: User) => {
+          console.log("user", user);
+
           dispatch(userAction.setData(user))
         })
         socket.on("receiveDevice", (device: Device[]) => {
@@ -50,6 +52,10 @@ function App() {
         socket.on("listUser", (ListUser: Chart[]) => {
           console.log("listUser", ListUser);
           dispatch(userAction.setUser(ListUser))
+        })
+        socket.on("listU", (ListU: Chart[]) => {
+          console.log("listU", ListU);
+          dispatch(userAction.setListU(ListU))
         })
         dispatch(userAction.setSocket(socket))
       }
