@@ -6,6 +6,7 @@ import { ListBinding } from "@/store/slices/user.slices";
 import AddBinding from "../AddBinding/AddBinding";
 // import { Device } from "@/store/slices/user.slices"
 import { message } from "antd";
+import EditBinding from "../EditBinding/EditBinding";
 interface Device {
     id: string;
     name: string;
@@ -22,7 +23,8 @@ export default function Binding() {
     const [shouldUpdateListDevice, setShouldUpdateListDevice] = useState(false);
     const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
     const [showMessage, setShowMessage] = useState(false);
-    // const [listDevice, setListDevice] = useState()
+    const [groupId, setGroupId] = useState("");
+
     const userStore = useSelector((store: StoreType) => {
         return store.userStore;
     });
@@ -107,7 +109,7 @@ export default function Binding() {
                                 <th>Default</th>
                                 <th>Name</th>
                                 <th>Power</th>
-                                <th>Create Time</th>
+                                <th className="group_detail_th">Detail</th>
                                 <th>Group Name</th>
                                 <th>Status</th>
                             </tr>
@@ -133,7 +135,13 @@ export default function Binding() {
                                     <td>
                                         <p>{item.power}W/h</p>
                                     </td>
-                                    <td>2023/10/10</td>
+                                    <td className="group_detail">
+                                        {item.groupName ? <a href="#" className="btn-download add_btn" data-mdb-toggle="modal" data-mdb-target="#EditModal">
+                                            <span className="text" onClick={() => {
+                                                setGroupId(item.groupId)
+                                            }}>Detail</span>
+                                        </a> : <span>Detail</span>}
+                                    </td>
                                     <td>
                                         {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
                                     </td>
@@ -154,6 +162,7 @@ export default function Binding() {
                         )}
                         {showMessage && message.warning("Vui lòng chọn ít nhất 2 thiết bị.")}
                         <AddBinding selectedDevices={selectedDevices} setSelectedDevices={setSelectedDevices} />
+                        <EditBinding groupId={groupId} setGroupId={setGroupId}/>
                     </table>
                 </div>
             </div>
