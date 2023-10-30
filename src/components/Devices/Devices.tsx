@@ -31,7 +31,7 @@ export default function Productlist() {
     const [tempId, setTempId] = useState("")
     const [unpairId, setUnpairId] = useState("");
     const [Id, setId] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
     useEffect(() => {
         if (userStore.Device && userStore.Device.length > 0) {
             setListDevice(userStore.Device);
@@ -62,7 +62,7 @@ export default function Productlist() {
         // Lấy dữ liệu từ localStorage
 
         const decodeTemp = localStorage.getItem('decodeData');
-        setLoading(true)
+        setLoadingState((prevState) => ({ ...prevState, [idDevice]: true }));
         if (decodeTemp) {
             const decodeData = JSON.parse(decodeTemp);
             for (let i in decodeData) {
@@ -78,14 +78,14 @@ export default function Productlist() {
                             console.log("isWithin10Minutes", isWithin10Minutes);
                             console.log("time", time);
                             if (isWithin10Minutes) {
-                                setLoading(false)
+                                 setLoadingState((prevState) => ({ ...prevState, [tempId]: false }));
                                 // mã QR còn hạn => show mã
                                 setQR_Code(a)
                                 setShowModal(true)
                                 return;
                             } else {
                                 if (userStore.socket) {
-                                    setLoading(true)
+                                    // setLoading(true)
                                     // mã QR đã hết hạn =>  gọi tạo mới                               
                                     setTempId(idDevice)
                                     userStore.socket.emit("requireDecoe", {
@@ -100,7 +100,7 @@ export default function Productlist() {
                 }
             }
             if (userStore.socket) {
-                setLoading(true)
+                // setLoading(true)
                 // mã QR của ID đó đã hêt hạn =>  gọi tạo mới
                 console.log("da roi vao truong hop khac");
                 setTempId(idDevice)
@@ -112,7 +112,7 @@ export default function Productlist() {
 
         } else {
             if (userStore.socket) {
-                setLoading(true)
+                // setLoading(true)
                 // không có mã QR của ID đó trong local => gọi cập nhật cái mới 
                 setTempId(idDevice)
                 userStore.socket.emit("requireDecoe", {
@@ -127,7 +127,7 @@ export default function Productlist() {
         userStore.socket?.on("decode", (decode: string) => {
             if (decode != null) {
                 if (tempId != "") {
-                    setLoading(false)
+                    setLoadingState((prevState) => ({ ...prevState, [tempId]: false }));
                     const decodeData = [
                         {
                             id: tempId,
@@ -149,7 +149,7 @@ export default function Productlist() {
 
     useEffect(() => {
         userStore.socket?.on("decodeFailed", (notification: string) => {
-            setLoading(false)
+            // setLoading(false)
             // lắng nghe và thông báo các lỗi 
             if (notification != "") {
                 message.error(notification)
@@ -269,9 +269,9 @@ export default function Productlist() {
                                     </td>
                                     <td>
 
-                                        <button className="status completed" onClick={() => {
-                                            handleSearchQrCode(item.node_id, item.id)
-                                        }}>{loading ? <span className='loading-spinner'></span> : "Share Connect"}</button>
+                                        <button className="status completed" onClick={() => handleSearchQrCode(item.node_id, item.id)}>
+                                            {loadingState[item.id] ? <span className='loading-spinner'></span> : "Share Connect"}
+                                        </button>
                                         <button className="status delete"
                                             onClick={() => {
                                                 handleUnpair(item.id, item.node_id)
