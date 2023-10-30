@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import './devices.scss'
-import { useSelector, useStore } from 'react-redux'
+import { useDispatch, useSelector, useStore } from 'react-redux'
 import { StoreType } from '@/store'
 import QrCode from './component/QrCode'
 import { message } from 'antd'
 import AddDevice from '../AddDevice/AddDevice'
 import { ListBinding } from '@/store/slices/user.slices'
 import { useNavigate } from 'react-router'
-
+import api from '@services/apis'
+import { userAction } from "@/store/slices/user.slices"
 interface Device {
     id: string;
     name: string;
@@ -17,7 +18,10 @@ interface Device {
     power: number;
     groupName: string;
     groupId: string;
+    // timeCreate: string;
+    active: boolean;
 }
+
 export default function Productlist() {
     const [listDevice, setListDevice] = useState<Device[]>([]);
     const [listBinding, setListBinding] = useState<ListBinding[]>([]);
@@ -25,13 +29,61 @@ export default function Productlist() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     })
+    console.log('userStore',userStore);
+    
+    const dispath = useDispatch()
     const navigate = useNavigate()
+    const [statust, setStatus] = useState()
+    const [name, setName] = useState('')
+    const [power, setPower] = useState()
+    const [nodeId, setNodeId] = useState('123')
+    const [idDevice, setIdDevice] = useState('')
     const [QR_Code, setQR_Code] = useState("")
     const [showModal, setShowModal] = useState(false);
     const [tempId, setTempId] = useState("")
     const [unpairId, setUnpairId] = useState("");
     const [Id, setId] = useState("");
+<<<<<<< HEAD
+    const [loading, setLoading] = useState(false);
+    const [add, setAdd] = useState(true)
+    const [count, setCount] = useState(1)
+    const [search, setSearch] = useState('')
+
+    async function toggle(id: any, status: any, node_id: any) {
+        // setLoading(true)
+        await api.deviceApi.realtime(node_id, { status: status }).then(res => {
+            // setPair(res.data.data)
+            if (res.data.data.active == true) {
+                api.deviceApi.toggle(id).then((res) => {
+                    console.log("datatoggle", res.data);
+                    // setLoading(false)
+                }).catch(err => {
+                    console.log('errtoggle', err);
+                    message.warning("err toggle ")
+                    // setLoading(true)
+                })
+            } else {
+                // setLoading(false)
+                message.warning("Deviec unconnected!")
+            }
+            // console.log('res.datarealtime', res.data.data);
+            // console.log('pairs', pairs);
+            // if (pairs[0]?.pair == false) {
+            //     console.log('vao rrrrrr');
+            //     setLoading(false)
+            // }
+        })
+    }
+    useEffect(() => {
+        api.deviceApi.findAll(search).then((res) => {
+            dispath(userAction.setDevice(res.data.data))
+            // console.log('res.datatata', res.data);
+        })
+        // console.log('data', data);
+    }, [count])
+=======
     const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
+>>>>>>> develop
     useEffect(() => {
         if (userStore.Device && userStore.Device.length > 0) {
             setListDevice(userStore.Device);
@@ -123,6 +175,41 @@ export default function Productlist() {
         }
     }
     useEffect(() => {
+        var socket = new WebSocket("ws://192.168.1.41:5580/ws");
+        socket.onopen = function (event) {
+            console.log("Kết nối WebSocket đã được thiết lập.");
+            // Gửi thông điệp JSON cho máy chủ
+            var message = {
+                "message_id": "4",
+                "command": "start_listening"
+            };
+
+            socket.send(JSON.stringify(message));
+        };
+
+        socket.onmessage = function (event) {
+            let data2 = event.data;
+            if (typeof data2 == 'string') {
+
+                data2 = JSON.parse(data2)
+                console.log("Dữ liệu nhận được từ WebSocket data: ", data2);
+                if (data2.event == "attribute_updated") {
+                    setStatus(data2.data[2])
+                    setNodeId(data2.data[0])
+                    // console.log('data2.data[3]',data);
+
+                }
+            }
+        };
+        socket.onclose = function (event) {
+            // console.log("Kết nối WebSocket đã đóng.");
+        };
+        socket.onerror = function (error) {
+            console.error("Lỗi WebSocket: " + error);
+            // console.log('vao', [1, 1].length);
+        };
+    }, [])
+    useEffect(() => {
         // lắng nghe kêt quả trả về và tạo mới
         userStore.socket?.on("decode", (decode: string) => {
             if (decode != null) {
@@ -202,7 +289,14 @@ export default function Productlist() {
             }
         })
     }, [unpairId])
+    useEffect(() => {
+        console.log('statust', statust);
+        api.deviceApi.realtime(nodeId, { status: statust }).then(res => {
+            setCount(count + 1)
+            console.log('dâttatatatatat', res.data);
 
+        })
+    }, [statust])
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -223,7 +317,6 @@ export default function Productlist() {
                         </li>
                     </ul>
                 </div>
-
                 <a href="#" className="btn-download">
                     <i className="bx bxs-cloud-download" />
                     <span className="text" data-mdb-toggle="modal"
@@ -284,6 +377,18 @@ export default function Productlist() {
                                         }}>Detail</button>
                                     </td>
                                     <td>
+                                        {item.status ? <button className='toggle togglechl' onClick={() => {
+                                            toggle(item.id, statust, item.node_id)
+                                            setCount(count + 1)
+                                        }}>
+                                            on
+                                        </button> : <button className='toggle' onClick={() => {
+                                            toggle(item.id, statust, item.node_id)
+                                            setCount(count + 1)
+                                        }}>
+                                            off
+                                        </button>}
+
                                     </td>
                                 </tr>
                             ))}

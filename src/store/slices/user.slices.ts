@@ -28,6 +28,8 @@ export interface Device {
     power: number;
     groupName: string;
     groupId: string;
+    // timeCreate: string;
+    active: boolean;
 }
 export interface BindingDevice {
     id: string;
