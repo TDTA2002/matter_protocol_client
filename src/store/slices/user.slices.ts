@@ -13,7 +13,7 @@ export interface User {
     emailAuthentication: boolean;
     userName: string;
     password: string;
-    role: UserRole;
+    isAdmin: Boolean;
     status: boolean;
     createAt: String;
     updateAt: String;
@@ -53,14 +53,19 @@ export interface ListChart {
     Date: string;
     timestamp: number;
 }
-
+export interface ListUser {
+    id: string;
+    email: string;
+    role: UserRole;
+}
 export interface UserState {
     data: User | null;
     reLoad: boolean;
     socket: null | Socket;
     Device: null | Device[];
     ListBinding: null | ListBinding[];
-    Chart: null | ListChart[]
+    Chart: null | ListChart[];
+    ListUser: null | ListUser[];
 }
 
 export const initialState: UserState = {
@@ -69,7 +74,8 @@ export const initialState: UserState = {
     socket: null,
     Device: null,
     ListBinding: null,
-    Chart: null
+    Chart: null,
+    ListUser: null
 };
 
 const userSlice = createSlice({
@@ -110,6 +116,12 @@ const userSlice = createSlice({
             return {
                 ...state,
                 Chart: action.payload,
+            };
+        },
+        setUser: function (state, action) {
+            return {
+                ...state,
+                ListUser: action.payload,
             };
         },
     }

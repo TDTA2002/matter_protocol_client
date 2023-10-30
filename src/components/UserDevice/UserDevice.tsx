@@ -1,7 +1,44 @@
-import React from 'react'
+import { StoreType } from '@/store';
+import { ListUser } from '@/store/slices/user.slices';
+import React, { FormEvent, useRef } from 'react'
+import { useSelector } from 'react-redux';
+
+type InputRef = {
+    input: HTMLInputElement;
+};
+
 
 export default function UserDevice() {
-    
+    const userStore = useSelector((store: StoreType) => {
+        return store.userStore
+    })
+    console.log("userStore", userStore.ListUser);
+
+    const user = userStore.ListUser
+
+    const nameRef = useRef<InputRef | null>(null);
+    const powerRef = useRef<InputRef | null>(null);
+    const codeRef = useRef<InputRef | null>(null);
+
+    const handleCreate = (e: FormEvent) => {
+        e.preventDefault();
+
+        if (nameRef.current && powerRef.current && codeRef.current) {
+            const formData = {
+                name: nameRef.current.input.value,
+                power: powerRef.current.input.value,
+                code: codeRef.current.input.value,
+            };
+
+            console.log("formData", formData);
+
+            if (formData) {
+                if (userStore.socket) {
+                    userStore.socket.emit('addDevices', formData);
+                }
+            }
+        }
+    }
     return (
         <main>
             <div className="head-title">
@@ -48,30 +85,21 @@ export default function UserDevice() {
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-
-                                <td>01-10-2021</td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status completed">Completed</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <img src="img/people.png" alt="User" />
-                                    <p>John Doe</p>
-                                </td>
-                                <td>01-10-2021</td>
-                                <td>
-                                    <span className="status pending">Pending</span>
-                                </td>
-                            </tr>
-                          
+                            {userStore.ListUser?.map((user: ListUser, index: number) => (
+                                <tr key={Date.now() * Math.random()}>
+                                    <td>
+                                        <span>{index + 1}</span>
+                                    </td>
+                                    <td>
+                                        {user.email}
+                                    </td>
+                                    <td>
+                                        <p>{user.role}</p>
+                                    </td>
+                                    <td>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
 

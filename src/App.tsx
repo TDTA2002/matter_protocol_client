@@ -47,6 +47,10 @@ function App() {
           console.log("showChartList", chart);
           dispatch(userAction.setChart(chart))
         })
+        socket.on("listUser", (ListUser: Chart[]) => {
+          console.log("listUser", ListUser);
+          dispatch(userAction.setUser(ListUser))
+        })
         dispatch(userAction.setSocket(socket))
       }
     }

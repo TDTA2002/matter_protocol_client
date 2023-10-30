@@ -40,7 +40,7 @@ const Sidebar = () => {
   const userStore = useSelector((store: StoreType) => store.userStore);
 
   const checkAdmin = () => {
-    if (userStore.data?.role == "ADMIN") {
+    if (userStore.data?.isAdmin) {
       setIsAdmin(!isAdmin)
     }
   }
