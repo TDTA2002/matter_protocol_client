@@ -33,7 +33,7 @@ export default function Productlist() {
     
     const dispath = useDispatch()
     const navigate = useNavigate()
-    const [statust, setStatus] = useState(true)
+    const [statust, setStatus] = useState()
     const [name, setName] = useState('')
     const [power, setPower] = useState()
     const [nodeId, setNodeId] = useState('123')
@@ -59,7 +59,7 @@ export default function Productlist() {
                 }).catch(err => {
                     console.log('errtoggle', err);
                     message.warning("err toggle ")
-                    setLoading(true)
+                    // setLoading(true)
                 })
             } else {
                 // setLoading(false)
@@ -188,7 +188,7 @@ export default function Productlist() {
             if (typeof data2 == 'string') {
 
                 data2 = JSON.parse(data2)
-                // console.log("Dữ liệu nhận được từ WebSocket data: ", data2);
+                console.log("Dữ liệu nhận được từ WebSocket data: ", data2);
                 if (data2.event == "attribute_updated") {
                     setStatus(data2.data[2])
                     setNodeId(data2.data[0])
@@ -287,7 +287,6 @@ export default function Productlist() {
     }, [unpairId])
     useEffect(() => {
         console.log('statust', statust);
-
         api.deviceApi.realtime(nodeId, { status: statust }).then(res => {
             setCount(count + 1)
             console.log('dâttatatatatat', res.data);
