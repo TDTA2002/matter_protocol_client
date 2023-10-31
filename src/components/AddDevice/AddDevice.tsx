@@ -1,18 +1,19 @@
 import React, { FormEvent, useRef } from 'react';
 import Input from 'antd/es/input/Input';
 import { useSelector } from 'react-redux';
-import { StoreType } from '@/store';
+import { StoreType, } from '@/store';
+import { UserState, } from '@/store/slices/user.slices';
 import { io, Socket } from 'socket.io-client';
 import api from '@services/apis'
+import { message } from 'antd';
 type InputRef = {
     input: HTMLInputElement;
 };
 
-
 export default function AddDevice() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
-    })
+    }) as UserState
 
     const nameRef = useRef<InputRef | null>(null);
     const powerRef = useRef<InputRef | null>(null);
@@ -58,13 +59,14 @@ export default function AddDevice() {
             const formData = {
                 name: nameRef.current.input.value,
                 power: powerRef.current.input.value,
-                user_device_id: "3481627781236668",
-                status: false,
+                userDeviceId: userStore.data?.userDevice[0].id,
+                isDeviceOn: false,// trạng thái đầu vào
                 active: true
             };
             let id = codeRef.current.input.value
             console.log("formData", formData);
-
+            console.log('id',id);
+            
             if (formData) {
                 // const socket = io('http://localhost:3001');
                 if (userStore.socket) {
@@ -74,6 +76,7 @@ export default function AddDevice() {
             api.deviceApi.create(formData, id).then(res => {
                 console.log('res.data', res.data);
             }).catch(err=>{
+                message.warning('error syntax')
                 console.log('errrrr',err);
             })
                 
@@ -97,17 +100,17 @@ export default function AddDevice() {
                                     <div>
                                         <div>
                                             Name <br />
-                                            <Input name="name" type="text" placeholder='Tên' ref={nameRef} />
+                                            <Input name="name" type="text" placeholder='Name' ref={nameRef} />
                                         </div>
                                     </div>
                                     <div>
                                         <div>
                                             Power <br />
-                                            <Input name="power" type="text" placeholder='Mô tả' ref={powerRef} />
+                                            <Input name="power" type="number" placeholder='Power' ref={powerRef} />
                                         </div>
                                         <div>
                                             Code <br />
-                                            <Input name="code" type="text" placeholder='Giá' ref={codeRef} />
+                                            <Input name="code" type="text" placeholder='code' ref={codeRef} />
                                         </div>
                                     </div>
                                 </div>
