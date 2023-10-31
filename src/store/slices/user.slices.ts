@@ -18,12 +18,14 @@ export interface User {
     createAt: String;
     updateAt: String;
     user_device: UserDevice;
+    userDevice: UserDevice[]
 }
 export interface UserDevice {
     id: number;
     email: string;
     userId: string;
     role: UserRole;
+    device:Device[]|null
 }
 
 export interface Device {

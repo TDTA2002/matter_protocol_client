@@ -43,7 +43,6 @@ export default function Productlist() {
     const [tempId, setTempId] = useState("")
     const [unpairId, setUnpairId] = useState("");
     const [Id, setId] = useState("");
-<<<<<<< HEAD
     const [loading, setLoading] = useState(false);
     const [add, setAdd] = useState(true)
     const [count, setCount] = useState(1)
@@ -81,9 +80,7 @@ export default function Productlist() {
         })
         // console.log('data', data);
     }, [count])
-=======
     const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
->>>>>>> develop
     useEffect(() => {
         if (userStore.Device && userStore.Device.length > 0) {
             setListDevice(userStore.Device);
