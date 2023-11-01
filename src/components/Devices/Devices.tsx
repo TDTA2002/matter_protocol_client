@@ -15,7 +15,7 @@ interface Device {
     name: string;
     user_device_id: string;
     node_id: number;
-    status: boolean;
+    isDeviceOn: boolean;
     power: number;
     groupName: string;
     groupId: string;
@@ -306,10 +306,6 @@ export default function Productlist() {
 
         })
     }, [statust])
-    useEffect(()=>{
-        console.log('listDevice',listDevice);
-        
-    },[count])
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -371,15 +367,19 @@ export default function Productlist() {
                             </tr>
                         </thead>
                         <tbody>
-                            {listDevice?.map((item: any, index: number) => (
+                            {listDevice.filter((item)=>{return item.active==true })?.map((item: any, index: number) => (
                                 <tr key={Date.now() * Math.random()}>
-                                    <td>
-                                        <span>{index + 1}</span>
+                                    
+                                    
+                                    <td>                                      
+                                        <span >{index + 1}</span>
                                     </td>
                                     <td>
+                                       
                                         <p><input type="text" defaultValue={item.name} /></p>
                                     </td>
                                     <td>
+                                    
                                         <p>{item.power} W/h</p>
                                     </td>
                                     <td>
@@ -393,7 +393,7 @@ export default function Productlist() {
                                         <button className="status delete"
                                             onClick={() => {
                                                 handleUnpair(item.id, item.node_id)
-
+                                                setCount(count+1)
                                             }}
                                         >Unpair</button>
                                         <button className="status pending" onClick={() => {
@@ -410,7 +410,7 @@ export default function Productlist() {
                                         </button> : <button className='toggle' onClick={() => {
                                             toggle(item.id, statust, item.node_id)
                                             setCount(count + 1)
-                                        }}>
+                                        }}> 
                                             off
                                         </button>}
 

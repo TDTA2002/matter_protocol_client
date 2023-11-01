@@ -158,7 +158,7 @@ export default function Binding() {
                                         {item.groupName ? <span>{item.groupName}</span> : <span>Chưa Binding</span>}
                                     </td>
                                     <td>
-                                        <span> {item.isDeviceOn}</span>
+                                        <span> {item.isDeviceOn?<>on</>:<>off</>}</span>
                                     </td>
                                 </tr>
                             ))}
