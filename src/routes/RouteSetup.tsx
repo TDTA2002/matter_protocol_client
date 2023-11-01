@@ -15,6 +15,7 @@ export default function RouteSetup() {
         <Route path="/" element={<Homemm />}>
           <Route path="/" element={<Home />}></Route>
           <Route path="/device" element={Lazy(() => import("@components/Devices/Devices"))()}></Route>
+          <Route path="/olddevice" element={Lazy(() => import("@components/Devices/oldDevice"))()}></Route>
           <Route path="/Chart" element={<MyChart />}></Route>
           <Route path="/binding" element={<Binding />}></Route>
           <Route path="/users" element={<User />}></Route>
