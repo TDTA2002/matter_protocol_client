@@ -104,6 +104,12 @@ const Sidebar = () => {
               <Link to={"device"} className="text">Device</Link>
             </Link>
           </li>
+          <li className={activeMenuItem === 1 ? 'active' : ''}>
+            <Link to={"add_product"} onClick={() => handleMenuItemClick(5)}>
+              <i className="bx bxs-shopping-bag-alt" />
+              <Link to={"olddevice"} className="text">Old Device</Link>
+            </Link>
+          </li>
           <li className={activeMenuItem === 2 ? 'active' : ''}>
             <Link to={"binding"} onClick={() => handleMenuItemClick(2)}>
               <i className="bx bxs-doughnut-chart" />
