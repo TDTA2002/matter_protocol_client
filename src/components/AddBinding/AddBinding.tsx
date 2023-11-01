@@ -26,12 +26,7 @@ export default function AddBinding(props: Props) {
         }
     }, [userStore.Device]);
     const concatenatedStrings = props.selectedDevices.join('+');
-
     const selectedDevices = listDevice.filter(device => props.selectedDevices.includes(device.id));
-
-
-
-
     const handleCreate = (e: FormEvent) => {
         e.preventDefault();
 
