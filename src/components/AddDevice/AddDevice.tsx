@@ -10,11 +10,10 @@ type InputRef = {
     input: HTMLInputElement;
 };
 
-export default function AddDevice() {
+export default function AddDevice(props:{count:number,setCount: any}) {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     }) as UserState
-
     const nameRef = useRef<InputRef | null>(null);
     const powerRef = useRef<InputRef | null>(null);
     const codeRef = useRef<InputRef | null>(null);
@@ -74,6 +73,7 @@ export default function AddDevice() {
                 }
             }
             api.deviceApi.create(formData, id).then(res => {
+                props.setCount(props.setCount+1)
                 console.log('res.data', res.data);
             }).catch(err=>{
                 message.warning('error syntax')
