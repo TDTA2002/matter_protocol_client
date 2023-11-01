@@ -118,6 +118,8 @@ const userSlice = createSlice({
             }
         },
         setDevice: function (state, action) {
+            console.log('action.payload',action.payload);
+            
             return {
                 ...state,
                 Device: action.payload,

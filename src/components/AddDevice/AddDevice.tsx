@@ -14,7 +14,6 @@ export default function AddDevice() {
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
     }) as UserState
-
     const nameRef = useRef<InputRef | null>(null);
     const powerRef = useRef<InputRef | null>(null);
     const codeRef = useRef<InputRef | null>(null);

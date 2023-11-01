@@ -8,7 +8,8 @@ import AddDevice from '../AddDevice/AddDevice'
 import { ListBinding } from '@/store/slices/user.slices'
 import { useNavigate } from 'react-router'
 import api from '@services/apis'
-import { userAction } from "@/store/slices/user.slices"
+// import { UserState } from '@/store/slices/user.slices';
+import { userAction,UserState } from "@/store/slices/user.slices"
 interface Device {
     id: string;
     name: string;
@@ -28,7 +29,7 @@ export default function Productlist() {
     const [shouldUpdateListDevice, setShouldUpdateListDevice] = useState(false);
     const userStore = useSelector((store: StoreType) => {
         return store.userStore
-    })
+    }) as any
     console.log('userStore',userStore);
     
     const dispath = useDispatch()
@@ -47,6 +48,7 @@ export default function Productlist() {
     const [add, setAdd] = useState(true)
     const [count, setCount] = useState(1)
     const [search, setSearch] = useState('')
+    const [open, setOpen] = useState(false);
 
     async function toggle(id: any, status: any, node_id: any) {
         // setLoading(true)
@@ -61,6 +63,7 @@ export default function Productlist() {
                     message.warning("err toggle ")
                     // setLoading(true)
                 })
+                
             } else {
                 // setLoading(false)
                 message.warning("Deviec unconnected!")
@@ -74,22 +77,28 @@ export default function Productlist() {
         })
     }
     useEffect(() => {
-        api.deviceApi.findAll(search).then((res) => {
+        console.log('davaouseffect');
+        
+        api.deviceApi.findAll(search,userStore.data?.userDevice[0].id).then((res) => {
+            console.log('res.datatata', res.data);
             dispath(userAction.setDevice(res.data.data))
-            // console.log('res.datatata', res.data);
+            
         })
         // console.log('data', data);
     }, [count])
     const [loadingState, setLoadingState] = useState<Record<string, boolean>>({});
     useEffect(() => {
+        
+        setListDevice(userStore.Device);
         if (userStore.Device && userStore.Device.length > 0) {
-            setListDevice(userStore.Device);
+            
             setShouldUpdateListDevice(true);
         }
         if (userStore.ListBinding && userStore.ListBinding.length > 0) {
             setListBinding(userStore.ListBinding);
             setShouldUpdateListDevice(true);
         }
+        console.log('vao devicesssssss',listDevice);
     }, [userStore.Device, userStore.ListBinding]);
     useEffect(() => {
         if (shouldUpdateListDevice) {
@@ -105,11 +114,10 @@ export default function Productlist() {
                 setShouldUpdateListDevice(false);
             }
         }
-    }, [shouldUpdateListDevice, listDevice, listBinding]);
+    }, [shouldUpdateListDevice, listDevice, listBinding]);//shouldUpdateListDevice, listDevice, listBinding
     console.log("listDevice", listDevice);
     function handleSearchQrCode(node_id: number, idDevice: string) {
         // Lấy dữ liệu từ localStorage
-
         const decodeTemp = localStorage.getItem('decodeData');
         setLoadingState((prevState) => ({ ...prevState, [idDevice]: true }));
         if (decodeTemp) {
@@ -190,11 +198,13 @@ export default function Productlist() {
 
                 data2 = JSON.parse(data2)
                 console.log("Dữ liệu nhận được từ WebSocket data: ", data2);
-                if (data2.event == "attribute_updated") {
-                    setStatus(data2.data[2])
-                    setNodeId(data2.data[0])
-                    // console.log('data2.data[3]',data);
-
+                if(localStorage.getItem('token')){
+                    if (data2.event == "attribute_updated") {
+                        setStatus(data2.data[2])
+                        setNodeId(data2.data[0])
+                        // console.log('data2.data[3]',data);
+    
+                    }
                 }
             }
         };
@@ -240,7 +250,9 @@ export default function Productlist() {
             }
         })
     }, [])
-
+    const showDrawer = () => {
+        setOpen(!open);
+    };
     function handleUnpair(id: string, node_id: number) {
         setUnpairId(id)
         if (userStore.socket) {
@@ -294,6 +306,10 @@ export default function Productlist() {
 
         })
     }, [statust])
+    useEffect(()=>{
+        console.log('listDevice',listDevice);
+        
+    },[count])
     return (
         <main>
             {showModal && <QrCode QR_Code={QR_Code} setQR_Code={setQR_Code} setShowModal={setShowModal} />}
@@ -315,7 +331,7 @@ export default function Productlist() {
                     </ul>
                 </div>
                 <a href="#" className="btn-download">
-                    <i className="bx bxs-cloud-download" />
+                    <i className="bx bxs-cloud-download " />
                     <span className="text" data-mdb-toggle="modal"
                         data-mdb-target="#exampleModal">Add New</span>
                 </a>
@@ -326,8 +342,20 @@ export default function Productlist() {
                 <div className="order">
                     <div className="head">
                         <h3>Products</h3>
-                        <i className="bx bx-search" />
+                        <div className={`modal__container ${open ? 'show' : ''}`}>
+                        <input type="text" className='input' value={search} onChange={(e)=>{
+                            setSearch(e.target.value)
+                            // setCount(count+1)
+                        }}/>
+                        <i className="bx bx-search" onClick={()=>{
+                            setCount(count+1)
+                            showDrawer()
+                        }} />
+                        </div>
+                       
+                        <i className="bx bx-search" onClick={showDrawer}/>
                         <i className="bx bx-filter" />
+                        
                     </div>
                     <table>
                         <thead>
@@ -374,7 +402,7 @@ export default function Productlist() {
                                         }}>Detail</button>
                                     </td>
                                     <td>
-                                        {item.status ? <button className='toggle togglechl' onClick={() => {
+                                        {item.isDeviceOn ? <button className='toggle togglechl' onClick={() => {
                                             toggle(item.id, statust, item.node_id)
                                             setCount(count + 1)
                                         }}>
