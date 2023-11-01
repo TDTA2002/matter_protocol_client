@@ -336,7 +336,7 @@ export default function Productlist() {
                         data-mdb-target="#exampleModal">Add New</span>
                 </a>
             </div>
-            <AddDevice />
+            <AddDevice count={count} setCount={setCount} />
 
             <div className="table-data">
                 <div className="order">
